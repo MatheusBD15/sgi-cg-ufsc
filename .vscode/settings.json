@@ -2,5 +2,8 @@
     "editor.defaultFormatter": "ms-python.black-formatter",
     "editor.formatOnSave": true,
     "editor.tabSize": 4,
-    "editor.indentSize": "tabSize"
+    "editor.indentSize": "tabSize",
+    "[qml]": {
+        "editor.defaultFormatter": "seanwu.vscode-qt-for-python"
+    }
 }
