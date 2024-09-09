@@ -48,6 +48,7 @@ Rectangle {
                 anchors.rightMargin: 20
 
                 Text {
+                    id: objectsTitle
                     anchors.horizontalCenter: parent.horizontalCenter
                     text: "Objetos"
                     color: "black"
@@ -56,6 +57,7 @@ Rectangle {
                 // ListView for scrolling items
                 Rectangle {
                     id: listContainer
+                    anchors.top: objectsTitle.top
                     width: parent.width
                     height: 400  // Fixed height for ListView container
                     color: "#999999"
@@ -65,7 +67,8 @@ Rectangle {
                     ListView {
                         width: parent.width
                         height: parent.height
-                        model: 1
+                        model: 20
+                        spacing: 3
 
                         delegate: Rectangle {
                             width: parent.width
@@ -115,10 +118,53 @@ Rectangle {
                     anchors.topMargin: 10
                     color: "#999999"
                     radius: 10
-                    Text {
-                        anchors.centerIn: parent
-                        text: "Footer"
-                        color: "white"
+                    Row {
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        anchors.top: parent.top
+                        anchors.topMargin: 20
+                        spacing: 20
+
+                        Column {
+                            spacing: 10
+                            Button {
+                                height: 40
+                                width: 40
+                                text: "^"
+                            }
+                            Row {
+                                spacing: 10
+                                    Button {
+                                        height: 40
+                                        width: 40
+                                        text: "<"
+                                    }
+                                    Button {
+                                        height: 40
+                                        width: 40
+                                        text: ">"
+                                    }
+                            }
+                            Button {
+                                height: 40
+                                width: 40
+                                text: "^"
+                            }
+                        }
+
+                        Column {
+                            spacing: 60
+                            Button {
+                                height: 40
+                                width: 40
+                                text: "IN"
+                            }
+
+                            Button {
+                                height: 40
+                                width: 40
+                                text: "OUT"
+                            }
+                        }
                     }
                 }
             }
