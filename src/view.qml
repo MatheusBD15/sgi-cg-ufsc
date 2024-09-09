@@ -118,53 +118,66 @@ Rectangle {
                     anchors.topMargin: 10
                     color: "#999999"
                     radius: 10
-                    Row {
-                        anchors.horizontalCenter: parent.horizontalCenter
+
+                    Column {
                         anchors.top: parent.top
                         anchors.topMargin: 20
+
                         spacing: 20
+                        anchors.horizontalCenter: parent.horizontalCenter
 
-                        Column {
-                            spacing: 10
-                            Button {
-                                height: 40
-                                width: 40
-                                text: "^"
-                            }
-                            Row {
+                        Text {
+                            text: "Window"
+                            anchors.horizontalCenter: parent.horizontalCenter
+                        }
+
+                        Row {
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            spacing: 20
+
+                            Column {
                                 spacing: 10
-                                    Button {
-                                        height: 40
-                                        width: 40
-                                        text: "<"
-                                    }
-                                    Button {
-                                        height: 40
-                                        width: 40
-                                        text: ">"
-                                    }
+                                Button {
+                                    height: 40
+                                    width: 40
+                                    text: "^"
+                                }
+                                Row {
+                                    spacing: 10
+                                        Button {
+                                            height: 40
+                                            width: 40
+                                            text: "<"
+                                        }
+                                        Button {
+                                            height: 40
+                                            width: 40
+                                            text: ">"
+                                        }
+                                }
+                                Button {
+                                    height: 40
+                                    width: 40
+                                    text: "^"
+                                }
                             }
-                            Button {
-                                height: 40
-                                width: 40
-                                text: "^"
+
+                            Column {
+                                spacing: 60
+                                Button {
+                                    height: 40
+                                    width: 40
+                                    text: "IN"
+                                }
+
+                                Button {
+                                    height: 40
+                                    width: 40
+                                    text: "OUT"
+                                }
                             }
                         }
 
-                        Column {
-                            spacing: 60
-                            Button {
-                                height: 40
-                                width: 40
-                                text: "IN"
-                            }
-
-                            Button {
-                                height: 40
-                                width: 40
-                                text: "OUT"
-                            }
-                        }
                     }
                 }
             }
