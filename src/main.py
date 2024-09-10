@@ -37,8 +37,14 @@ def main():
     objectsListTitle = ttk.Label(menu, text="Objetos")
     objectsListTitle.grid(column=0, row=0, sticky=(N, W))
 
+    # A classe Sketchpad contém toda a lógica de renderização
     sketch = Sketchpad(
-        mainframe, background="black", height=CANVAS_HEIGHT, width=CANVAS_WIDTH
+        mainframe,
+        background="black",
+        height=CANVAS_HEIGHT,
+        width=CANVAS_WIDTH,
+        borderwidth=5,
+        relief="sunken",
     )
     sketch.grid(column=2, row=1)
     sketch.focus()

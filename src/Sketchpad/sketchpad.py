@@ -12,6 +12,9 @@ class Sketchpad(Canvas):
         self.bind("<Button-4>", self.handleZoomIn)
         self.bind("<Button-5>", self.handleZoomOut)
         self.bind_all("<KeyPress>", self.handleKeyPress)
+        self.bind("<Motion>", self.handleMouseMovement)
+        self.mouseXw = 0
+        self.mouseYw = 0
 
         ## Representa o canvas em si
         self.viewport = Viewport(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
@@ -21,7 +24,14 @@ class Sketchpad(Canvas):
         self.displayFile = STARTING_DISPLAY_FILE
         self.objectsVar = StringVar(value=self.getAllObjectNames())
 
-        self.drawAllObjects()
+        self.repaint()
+
+    def handleMouseMovement(self, event: Event):
+        (xw, yw) = self.viewportTransform2d((event.x, event.y))
+        self.mouseXw = xw
+        self.mouseYw = yw
+
+        self.repaint()
 
     def handleZoomIn(self, event: Event):
         self.zoom(-0.1)
@@ -45,7 +55,7 @@ class Sketchpad(Canvas):
             self.window.yMax += movementSpeed
             self.window.yMin += movementSpeed
 
-        self.drawAllObjects()
+        self.repaint()
 
     def viewportTransform2d(self, coords: tuple[float]):
         (xw, yw) = coords
@@ -62,13 +72,55 @@ class Sketchpad(Canvas):
     def addObject(self, obj: ScreenObject):
         self.displayFile.append(obj)
         self.objectsVar.set(self.getAllObjectNames())
+        self.repaint()
+
+    def repaint(self):
+        self.delete("all")
         self.drawAllObjects()
+        self.drawText()
 
     def drawAllObjects(self):
-        self.delete("all")
-
         for obj in self.displayFile:
             self.drawObject(obj)
+
+    def drawText(self):
+        self.create_text(
+            10,
+            10,
+            text="Controle com scroll do mouse e setas do teclado",
+            fill="white",
+            anchor="nw",
+        )
+
+        self.create_text(
+            950,
+            980,
+            anchor="se",
+            text="Xwmin: "
+            + str(self.window.xMin)
+            + "\n"
+            + "Xwmax: "
+            + str(self.window.xMax)
+            + "\n"
+            + "Ywmin: "
+            + str(self.window.yMin)
+            + "\n"
+            + "Ywmax: "
+            + str(self.window.yMax),
+            fill="white",
+        )
+
+        self.create_text(
+            960,
+            10,
+            anchor="ne",
+            fill="white",
+            text="Mouse xw: "
+            + str(round(self.mouseXw, 2))
+            + "\n"
+            + "Mouse yw: "
+            + str(round(self.mouseYw, 2)),
+        )
 
     def drawObject(self, obj: ScreenObject):
         if obj.type == "point":
@@ -95,7 +147,7 @@ class Sketchpad(Canvas):
     def zoom(self, percentage: float = 0.1):
         self.window.xMax = self.window.xMax * (1.0 + percentage)
         self.window.yMax = self.window.yMax * (1.0 + percentage)
-        self.drawAllObjects()
+        self.repaint()
 
     def getObjectsList(self):
         return self.objectsVar
