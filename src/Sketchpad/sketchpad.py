@@ -77,7 +77,7 @@ class Sketchpad(Canvas):
             (xvp2, yvp2) = self.viewportTransform2d((xw + 10, yw + 10))
 
             # criar oval para representar um ponto
-            self.create_oval(xvp1, yvp1, xvp2, yvp2, fill="white")
+            self.create_oval(xvp1, yvp1, xvp2, yvp2, fill=obj.color)
         else:
             for index, _el in enumerate(obj.coords):
                 if index == 0:
@@ -89,7 +89,7 @@ class Sketchpad(Canvas):
                     self.create_line(
                         (xvp1, yvp1, xvp2, yvp2),
                         width=2,
-                        fill="white",
+                        fill=obj.color,
                     )
 
     def zoom(self, percentage: float = 0.1):

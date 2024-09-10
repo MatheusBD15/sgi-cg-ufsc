@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import ttk
 from vars import *
+import random
 
 
 class AddObjDialog(Toplevel):
@@ -73,7 +74,7 @@ class AddObjDialog(Toplevel):
                 return
 
             coords = list(eval((rawCoords)))
-            newObj = ScreenObject(name, type, coords)
+            newObj = ScreenObject(name, type, coords, random.choice(COLORS))
             self.sketchpad.addObject(newObj)
             self.dismiss()
         except:
