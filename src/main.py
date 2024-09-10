@@ -40,8 +40,8 @@ class Sketchpad(Canvas):
     def __init__(self, parent, **kwargs):
         super().__init__(parent, **kwargs)
         self.movementSpeed = 50
-        self.bind_all("<Button-4>", self.handleZoomIn)
-        self.bind_all("<Button-5>", self.handleZoomOut)
+        self.bind("<Button-4>", self.handleZoomIn)
+        self.bind("<Button-5>", self.handleZoomOut)
         self.bind_all("<KeyPress>", self.handleKeyPress)
 
         ## Representa o canvas em si
@@ -97,17 +97,17 @@ class Sketchpad(Canvas):
 
     def drawObject(self, obj: ScreenObject):
         if obj.type == "point":
-            (xvp, yvp) = self.viewportTransform2d(obj.coords)
+            (xw, yw) = obj.coords
+            (xvp1, yvp1) = self.viewportTransform2d(obj.coords)
+            (xvp2, yvp2) = self.viewportTransform2d((xw + 10, yw + 10))
 
             # criar oval para representar um ponto
-            self.create_oval(xvp, yvp, xvp + 10, yvp + 10, fill="white")
+            self.create_oval(xvp1, yvp1, xvp2, yvp2, fill="white")
         else:
-            print(obj.coords)
             for index, _el in enumerate(obj.coords):
                 if index == 0:
                     pass
                 else:
-                    # print(_el)
                     (xvp1, yvp1) = self.viewportTransform2d(obj.coords[index - 1])
                     (xvp2, yvp2) = self.viewportTransform2d(obj.coords[index])
 
@@ -126,7 +126,6 @@ class Sketchpad(Canvas):
 def main():
 
     root = Tk()
-    # root.minsize(width=1920, height=1080)
     root.title("SGI-UFSC")
     root.columnconfigure(0, weight=1)
     root.rowconfigure(0, weight=1)
