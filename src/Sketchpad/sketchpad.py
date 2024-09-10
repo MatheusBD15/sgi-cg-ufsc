@@ -97,16 +97,16 @@ class Sketchpad(Canvas):
             980,
             anchor="se",
             text="Xwmin: "
-            + str(self.window.xMin)
+            + str(round(self.window.xMin, 2))
             + "\n"
             + "Xwmax: "
-            + str(self.window.xMax)
+            + str(round(self.window.xMax, 2))
             + "\n"
             + "Ywmin: "
-            + str(self.window.yMin)
+            + str(round(self.window.yMin, 2))
             + "\n"
             + "Ywmax: "
-            + str(self.window.yMax),
+            + str(round(self.window.yMax, 2)),
             fill="white",
         )
 
