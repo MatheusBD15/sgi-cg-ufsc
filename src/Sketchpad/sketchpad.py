@@ -211,7 +211,7 @@ class Sketchpad(Canvas):
             if self.selected_object and self.selected_object.name == obj.name:
                 width = 10
 
-            (xw, yw) = obj.coords
+            [(xw, yw)] = obj.coords
             (xvp1, yvp1) = self.viewportTransform2d((xw - width, yw - width))
             (xvp2, yvp2) = self.viewportTransform2d((xw + width, yw + width))
 
