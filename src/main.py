@@ -4,6 +4,7 @@ from vars import *
 from Sketchpad.sketchpad import Sketchpad
 from Dialog.addObjDialog import AddObjDialog
 
+
 def main():
     root = Tk()
     root.title("SGI-UFSC")
@@ -14,7 +15,7 @@ def main():
     mainframe.grid(column=0, row=0, sticky=(N, W, E, S))
     mainframe.columnconfigure(0, weight=1)
     mainframe.columnconfigure(1, weight=3)
-    mainframe.rowconfigure(0, weight=1)
+    mainframe.rowconfigure(0, weight=1, pad=20)
     mainframe.rowconfigure(1, weight=0)
 
     menu = ttk.LabelFrame(mainframe, text="Menu", width=200, padding="20")
@@ -46,8 +47,9 @@ def main():
     addNewObjBtn = ttk.Button(
         menu, text="+", width=5, command=lambda: AddObjDialog(root, sketch)
     )
-    addNewObjBtn.grid(column=0, row=2, sticky=(E))
+    addNewObjBtn.grid(column=0, row=0, sticky=(E))
 
     root.mainloop()
+
 
 main()

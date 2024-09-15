@@ -37,35 +37,75 @@ class Sketchpad(Canvas):
         control_frame = ttk.Frame(parent)
         control_frame.grid(column=0, row=1, sticky=(W, E))
 
-        ttk.Button(control_frame, text="←", command=lambda: self.transform_selected('translate', -10, 0)).grid(row=0, column=0)
-        ttk.Button(control_frame, text="→", command=lambda: self.transform_selected('translate', 10, 0)).grid(row=0, column=1)
-        ttk.Button(control_frame, text="↑", command=lambda: self.transform_selected('translate', 0, -10)).grid(row=0, column=2)
-        ttk.Button(control_frame, text="↓", command=lambda: self.transform_selected('translate', 0, 10)).grid(row=0, column=3)
+        ttk.Button(
+            control_frame,
+            text="←",
+            command=lambda: self.transform_selected("translate", -10, 0),
+        ).grid(row=0, column=0)
+        ttk.Button(
+            control_frame,
+            text="→",
+            command=lambda: self.transform_selected("translate", 10, 0),
+        ).grid(row=0, column=1)
+        ttk.Button(
+            control_frame,
+            text="↑",
+            command=lambda: self.transform_selected("translate", 0, -10),
+        ).grid(row=0, column=2)
+        ttk.Button(
+            control_frame,
+            text="↓",
+            command=lambda: self.transform_selected("translate", 0, 10),
+        ).grid(row=0, column=3)
 
-        ttk.Button(control_frame, text="+", command=lambda: self.transform_selected('scale', 1.1, 1.1)).grid(row=1, column=0)
-        ttk.Button(control_frame, text="-", command=lambda: self.transform_selected('scale', 0.9, 0.9)).grid(row=1, column=1)
+        ttk.Button(
+            control_frame,
+            text="+",
+            command=lambda: self.transform_selected("scale", 1.1, 1.1),
+        ).grid(row=1, column=0)
+        ttk.Button(
+            control_frame,
+            text="-",
+            command=lambda: self.transform_selected("scale", 0.9, 0.9),
+        ).grid(row=1, column=1)
 
-        ttk.Button(control_frame, text="↺", command=lambda: self.transform_selected('rotate', -15)).grid(row=1, column=2)
-        ttk.Button(control_frame, text="↻", command=lambda: self.transform_selected('rotate', 15)).grid(row=1, column=3)
+        ttk.Button(
+            control_frame,
+            text="↺",
+            command=lambda: self.transform_selected("rotate", -15),
+        ).grid(row=1, column=2)
+        ttk.Button(
+            control_frame,
+            text="↻",
+            command=lambda: self.transform_selected("rotate", 15),
+        ).grid(row=1, column=3)
 
     def set_objects_list(self, listbox):
         self.objectsList = listbox
-        self.objectsList.bind('<<ListboxSelect>>', self.on_select)
+        self.objectsList.bind("<<ListboxSelect>>", self.on_select)
 
     def on_select(self, event):
         if self.objectsList.curselection():
             index = self.objectsList.curselection()[0]
             self.selected_object = self.displayFile[index]
+            self.selected_object.selected = True
+            self.repaint()
         else:
+            self.clearSelected()
+
+    def clearSelected(self):
+        if self.selected_object:
+            self.selected_object.selected = False
             self.selected_object = None
+            self.repaint()
 
     def transform_selected(self, transformation, *args):
         if self.selected_object:
-            if transformation == 'translate':
+            if transformation == "translate":
                 self.selected_object.apply_transformation(translate, *args)
-            elif transformation == 'scale':
+            elif transformation == "scale":
                 self.selected_object.apply_transformation(scale, *args)
-            elif transformation == 'rotate':
+            elif transformation == "rotate":
                 self.selected_object.apply_transformation(rotate, *args)
             self.repaint()
 
@@ -167,9 +207,13 @@ class Sketchpad(Canvas):
 
     def drawObject(self, obj: ScreenObject):
         if obj.type == "point":
+            width = 5
+            if self.selected_object and self.selected_object.name == obj.name:
+                width = 10
+
             (xw, yw) = obj.coords
-            (xvp1, yvp1) = self.viewportTransform2d(obj.coords)
-            (xvp2, yvp2) = self.viewportTransform2d((xw + 10, yw + 10))
+            (xvp1, yvp1) = self.viewportTransform2d((xw - width, yw - width))
+            (xvp2, yvp2) = self.viewportTransform2d((xw + width, yw + width))
 
             # criar oval para representar um ponto
             self.create_oval(xvp1, yvp1, xvp2, yvp2, fill=obj.color)
@@ -181,9 +225,13 @@ class Sketchpad(Canvas):
                     (xvp1, yvp1) = self.viewportTransform2d(obj.coords[index - 1])
                     (xvp2, yvp2) = self.viewportTransform2d(obj.coords[index])
 
+                    width = 2
+                    if self.selected_object and self.selected_object.name == obj.name:
+                        width = 10
+
                     self.create_line(
                         (xvp1, yvp1, xvp2, yvp2),
-                        width=2,
+                        width=width,
                         fill=obj.color,
                     )
 
@@ -209,10 +257,10 @@ class Sketchpad(Canvas):
             self.repaint()
 
     def translate_selected(self, tx, ty):
-        self.transform_selected_object('translate', tx, ty)
+        self.transform_selected_object("translate", tx, ty)
 
     def scale_selected(self, sx, sy):
-        self.transform_selected_object('scale', sx, sy)
+        self.transform_selected_object("scale", sx, sy)
 
     def rotate_selected(self, angle):
-        self.transform_selected_object('rotate', angle)
+        self.transform_selected_object("rotate", angle)
