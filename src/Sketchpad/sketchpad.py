@@ -3,6 +3,7 @@ from tkinter import ttk
 from vars import *
 from Sketchpad.viewport import Viewport
 from Sketchpad.window import Window
+from Sketchpad.transformations import translate, scale, rotate
 
 
 class Sketchpad(Canvas):
@@ -24,7 +25,49 @@ class Sketchpad(Canvas):
         self.displayFile = STARTING_DISPLAY_FILE
         self.objectsVar = StringVar(value=self.getAllObjectNames())
 
+        self.selected_object = None
+        self.objectsList = None  # We'll set this later from main.py
+
+        # Add transformation controls
+        self.add_transformation_controls(parent)
+
         self.repaint()
+
+    def add_transformation_controls(self, parent):
+        control_frame = ttk.Frame(parent)
+        control_frame.grid(column=0, row=1, sticky=(W, E))
+
+        ttk.Button(control_frame, text="←", command=lambda: self.transform_selected('translate', -10, 0)).grid(row=0, column=0)
+        ttk.Button(control_frame, text="→", command=lambda: self.transform_selected('translate', 10, 0)).grid(row=0, column=1)
+        ttk.Button(control_frame, text="↑", command=lambda: self.transform_selected('translate', 0, -10)).grid(row=0, column=2)
+        ttk.Button(control_frame, text="↓", command=lambda: self.transform_selected('translate', 0, 10)).grid(row=0, column=3)
+
+        ttk.Button(control_frame, text="+", command=lambda: self.transform_selected('scale', 1.1, 1.1)).grid(row=1, column=0)
+        ttk.Button(control_frame, text="-", command=lambda: self.transform_selected('scale', 0.9, 0.9)).grid(row=1, column=1)
+
+        ttk.Button(control_frame, text="↺", command=lambda: self.transform_selected('rotate', -15)).grid(row=1, column=2)
+        ttk.Button(control_frame, text="↻", command=lambda: self.transform_selected('rotate', 15)).grid(row=1, column=3)
+
+    def set_objects_list(self, listbox):
+        self.objectsList = listbox
+        self.objectsList.bind('<<ListboxSelect>>', self.on_select)
+
+    def on_select(self, event):
+        if self.objectsList.curselection():
+            index = self.objectsList.curselection()[0]
+            self.selected_object = self.displayFile[index]
+        else:
+            self.selected_object = None
+
+    def transform_selected(self, transformation, *args):
+        if self.selected_object:
+            if transformation == 'translate':
+                self.selected_object.apply_transformation(translate, *args)
+            elif transformation == 'scale':
+                self.selected_object.apply_transformation(scale, *args)
+            elif transformation == 'rotate':
+                self.selected_object.apply_transformation(rotate, *args)
+            self.repaint()
 
     def handleMouseMovement(self, event: Event):
         (xw, yw) = self.viewportTransform2d((event.x, event.y))
@@ -157,3 +200,19 @@ class Sketchpad(Canvas):
         for obj in self.displayFile:
             acc.append(obj.name + " - " + obj.type)
         return acc
+
+    def transform_selected_object(self, transformation, *args):
+        selected_index = self.objectsList.curselection()
+        if selected_index:
+            obj = self.displayFile[selected_index[0]]
+            getattr(obj, transformation)(*args)
+            self.repaint()
+
+    def translate_selected(self, tx, ty):
+        self.transform_selected_object('translate', tx, ty)
+
+    def scale_selected(self, sx, sy):
+        self.transform_selected_object('scale', sx, sy)
+
+    def rotate_selected(self, angle):
+        self.transform_selected_object('rotate', angle)
