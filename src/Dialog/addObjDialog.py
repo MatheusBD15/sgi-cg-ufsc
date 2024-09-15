@@ -15,7 +15,8 @@ class AddObjDialog(Toplevel):
         mainframe.grid(column=0, row=0, sticky=(N, W, E, S))
         mainframe.columnconfigure(0, weight=1, pad=40)
         mainframe.columnconfigure(1, weight=1, pad=40)
-        mainframe.columnconfigure(2, weight=1)
+        mainframe.columnconfigure(2, weight=1, pad=40)
+        mainframe.columnconfigure(3, weight=1)
         mainframe.rowconfigure(0, weight=1)
         mainframe.rowconfigure(1, weight=1, pad=100)
         mainframe.rowconfigure(2, weight=1)
@@ -34,6 +35,17 @@ class AddObjDialog(Toplevel):
         self.objTypeCombobox.state(["readonly"])
         self.objTypeCombobox.set(objTypes[0])
         self.objTypeCombobox.grid(row=1, column=0)
+
+        colorComboboxLabel = ttk.Label(mainframe, text="Cor")
+        colorComboboxLabel.grid(row=0, column=3)
+
+        self.colorCombobox = ttk.Combobox(
+            mainframe,
+        )
+        self.colorCombobox["values"] = COLORS
+        self.colorCombobox.state(["readonly"])
+        self.colorCombobox.set(COLORS[0])
+        self.colorCombobox.grid(row=1, column=3)
 
         nameEntryLabel = ttk.Label(mainframe, text="Nome")
         nameEntryLabel.grid(row=0, column=1)
@@ -57,7 +69,7 @@ class AddObjDialog(Toplevel):
         self.coordEntry.grid(row=1, column=2)
 
         ttk.Button(mainframe, text="Confirmar", command=self.confirm).grid(
-            row=2, column=2
+            row=2, column=3
         )
 
     def dismiss(self):
@@ -69,12 +81,13 @@ class AddObjDialog(Toplevel):
             type = self.objTypeCombobox.get()
             name = self.nameEntry.get()
             rawCoords = self.coordEntry.get()
+            color = self.colorCombobox.get()
 
             if name == "":
                 return
 
             coords = list(eval((rawCoords)))
-            newObj = ScreenObject(name, type, coords, random.choice(COLORS))
+            newObj = ScreenObject(name, type, coords, color)
             self.sketchpad.addObject(newObj)
             self.dismiss()
         except:

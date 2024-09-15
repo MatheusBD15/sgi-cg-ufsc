@@ -40,44 +40,44 @@ class Sketchpad(Canvas):
         ttk.Button(
             control_frame,
             text="←",
-            command=lambda: self.transform_selected("translate", -10, 0),
+            command=lambda: self.transform_selected("translate", -3, 0),
         ).grid(row=0, column=0)
         ttk.Button(
             control_frame,
             text="→",
-            command=lambda: self.transform_selected("translate", 10, 0),
+            command=lambda: self.transform_selected("translate", 3, 0),
         ).grid(row=0, column=1)
         ttk.Button(
             control_frame,
             text="↑",
-            command=lambda: self.transform_selected("translate", 0, -10),
+            command=lambda: self.transform_selected("translate", 0, -3),
         ).grid(row=0, column=2)
         ttk.Button(
             control_frame,
             text="↓",
-            command=lambda: self.transform_selected("translate", 0, 10),
+            command=lambda: self.transform_selected("translate", 0, 3),
         ).grid(row=0, column=3)
 
         ttk.Button(
             control_frame,
             text="+",
-            command=lambda: self.transform_selected("scale", 1.1, 1.1),
+            command=lambda: self.transform_selected("scale", 1.05, 1.05),
         ).grid(row=1, column=0)
         ttk.Button(
             control_frame,
             text="-",
-            command=lambda: self.transform_selected("scale", 0.9, 0.9),
+            command=lambda: self.transform_selected("scale", 0.95, 0.95),
         ).grid(row=1, column=1)
 
         ttk.Button(
             control_frame,
             text="↺",
-            command=lambda: self.transform_selected("rotate", -15),
+            command=lambda: self.transform_selected("rotate", -1),
         ).grid(row=1, column=2)
         ttk.Button(
             control_frame,
             text="↻",
-            command=lambda: self.transform_selected("rotate", 15),
+            command=lambda: self.transform_selected("rotate", 1),
         ).grid(row=1, column=3)
 
     def set_objects_list(self, listbox):
