@@ -26,6 +26,7 @@ def main():
 
     sketch = Sketchpad(
         mainframe,
+        menu=menu,
         background="black",
         height=CANVAS_HEIGHT,
         width=CANVAS_WIDTH,

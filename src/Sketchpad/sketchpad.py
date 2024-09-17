@@ -7,7 +7,7 @@ from Sketchpad.transformations import translate, scale, rotate
 
 
 class Sketchpad(Canvas):
-    def __init__(self, parent, **kwargs):
+    def __init__(self, parent, menu, **kwargs):
         super().__init__(parent, **kwargs)
         self.movementSpeed = 50
         self.bind("<Button-4>", self.handleZoomIn)
@@ -29,34 +29,57 @@ class Sketchpad(Canvas):
         self.objectsList = None  # We'll set this later from main.py
 
         # Add transformation controls
-        self.add_transformation_controls(parent)
+        self.add_transformation_controls(menu)
 
         self.repaint()
 
-    def add_transformation_controls(self, parent):
-        control_frame = ttk.Frame(parent)
-        control_frame.grid(column=0, row=1, sticky=(W, E))
+    def add_transformation_controls(self, menu):
+        control_frame = ttk.LabelFrame(menu, text="Controles")
+        control_frame.grid(column=0, row=2, sticky=(W, E))
+
+        translation_frame = ttk.LabelFrame(control_frame, text="Translação")
+        translation_frame.grid(column=0, row=0, sticky=(W, E))
+        translation_frame.rowconfigure(0, pad=10)
+        translation_frame.rowconfigure(1, pad=10)
+        translation_frame.rowconfigure(2, pad=10)
+        translation_frame.columnconfigure(0, pad=10)
+
+        ttk.Label(translation_frame, text="Magnitude:").grid(column=0, row=0)
+
+        translation_magnitude = StringVar(value="5")
+        self.translation_entry = ttk.Entry(
+            translation_frame, textvariable=translation_magnitude, width=20
+        )
+        self.translation_entry.grid(row=0, column=1)
 
         ttk.Button(
-            control_frame,
+            translation_frame,
             text="←",
-            command=lambda: self.transform_selected("translate", -3, 0),
-        ).grid(row=0, column=0)
+            command=lambda: self.transform_selected(
+                "translate", -1 * float(self.translation_entry.get()), 0
+            ),
+        ).grid(row=1, column=0)
         ttk.Button(
-            control_frame,
+            translation_frame,
             text="→",
-            command=lambda: self.transform_selected("translate", 3, 0),
-        ).grid(row=0, column=1)
+            command=lambda: self.transform_selected(
+                "translate", float(self.translation_entry.get()), 0
+            ),
+        ).grid(row=1, column=1)
         ttk.Button(
-            control_frame,
+            translation_frame,
             text="↑",
-            command=lambda: self.transform_selected("translate", 0, -3),
-        ).grid(row=0, column=2)
+            command=lambda: self.transform_selected(
+                "translate", 0, -1 * float(self.translation_entry.get())
+            ),
+        ).grid(row=2, column=0)
         ttk.Button(
-            control_frame,
+            translation_frame,
             text="↓",
-            command=lambda: self.transform_selected("translate", 0, 3),
-        ).grid(row=0, column=3)
+            command=lambda: self.transform_selected(
+                "translate", 0, float(self.translation_entry.get())
+            ),
+        ).grid(row=2, column=1)
 
         ttk.Button(
             control_frame,
