@@ -106,18 +106,14 @@ class Sketchpad(Canvas):
         ttk.Button(
             scale_frame,
             text="+",
-            command=lambda: self.transform_selected(
-                "scale",
-                1 + (float(self.scale_entry.get() or 10)) / 100,
+            command=lambda: self.scale_selected(
                 1 + (float(self.scale_entry.get() or 10)) / 100,
             ),
         ).grid(row=1, column=0)
         ttk.Button(
             scale_frame,
             text="-",
-            command=lambda: self.transform_selected(
-                "scale",
-                1 - (float(self.scale_entry.get() or 10)) / 100,
+            command=lambda: self.scale_selected(
                 1 - (float(self.scale_entry.get() or 10)) / 100,
             ),
         ).grid(row=1, column=1)
@@ -237,8 +233,6 @@ class Sketchpad(Canvas):
         if self.selected_object:
             if transformation == "translate":
                 self.selected_object.apply_transformation(translate, *args)
-            elif transformation == "scale":
-                self.selected_object.apply_transformation(scale, *args)
             self.repaint()
 
     def handleMouseMovement(self, event: Event):
@@ -391,5 +385,20 @@ class Sketchpad(Canvas):
     def translate_selected(self, tx, ty):
         self.transform_selected_object("translate", tx, ty)
 
-    def scale_selected(self, sx, sy):
-        self.transform_selected_object("scale", sx, sy)
+    def scale_selected(self, magnitude):
+        if self.selected_object:
+            # Calcula centro geométrico do objeto
+            xCenter = 0
+            yCenter = 0
+
+            for x, y in self.selected_object.coords:
+                xCenter += x
+                yCenter += y
+
+            xCenter = xCenter / len(self.selected_object.coords)
+            yCenter = yCenter / len(self.selected_object.coords)
+
+            self.selected_object.apply_transformation(
+                        scale, magnitude, magnitude, xCenter, yCenter
+            )
+            self.repaint()

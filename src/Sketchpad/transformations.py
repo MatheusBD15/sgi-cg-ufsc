@@ -6,9 +6,19 @@ def translate(coords, tx, ty):
     return apply_transformation(coords, translation_matrix)
 
 
-def scale(coords, sx, sy):
+def scale(coords, sx, sy, cx, cy):
+    translate_to_center = np.array([[1, 0, -cx], [0, 1, -cy], [0, 0, 1]])
+
     scaling_matrix = np.array([[sx, 0, 0], [0, sy, 0], [0, 0, 1]])
-    return apply_transformation(coords, scaling_matrix)
+
+    translate_back = np.array([[1, 0, cx], [0, 1, cy], [0, 0, 1]])
+
+    resulting_matrix = np.dot(
+        translate_back, np.dot(scaling_matrix, translate_to_center)
+    )
+
+    # Apply the transformation matrix to the coordinates
+    return apply_transformation(coords, resulting_matrix)
 
 
 def rotate_around_world(coords, angle):
