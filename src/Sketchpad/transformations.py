@@ -25,7 +25,9 @@ def rotate_around_world(coords, angle):
 
 def rotate_around_point(coords, tx, ty, angle):
     angle_rad = np.radians(angle)
-    translate_to_center = np.array([[1, 0, 0], [0, 1, 0], [tx * -1, ty * -1, 1]])
+
+    translate_to_center = np.array([[1, 0, -tx], [0, 1, -ty], [0, 0, 1]])
+
     rotate = np.array(
         [
             [np.cos(angle_rad), -np.sin(angle_rad), 0],
@@ -33,8 +35,10 @@ def rotate_around_point(coords, tx, ty, angle):
             [0, 0, 1],
         ]
     )
-    translate_back = np.array([[1, 0, 0], [0, 1, 0], [tx, ty, 1]])
-    resulting_matrix = np.dot(np.dot(translate_to_center, rotate), translate_back)
+
+    translate_back = np.array([[1, 0, tx], [0, 1, ty], [0, 0, 1]])
+    resulting_matrix = np.dot(translate_back, np.dot(rotate, translate_to_center))
+
     return apply_transformation(coords, resulting_matrix)
 
 

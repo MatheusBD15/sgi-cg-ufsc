@@ -213,12 +213,21 @@ class Sketchpad(Canvas):
             if rotation_type == "world":
                 self.selected_object.apply_transformation(rotate_around_world, angle)
             elif rotation_type == "object":
+                # Calcula centro geométrico do objeto
+                xCenter = 0
+                yCenter = 0
+
+                for x, y in self.selected_object.coords:
+                    xCenter += x
+                    yCenter += y
+
+                xCenter = xCenter / len(self.selected_object.coords)
+                yCenter = yCenter / len(self.selected_object.coords)
                 self.selected_object.apply_transformation(
-                    rotate_around_point, 0, 0, angle
+                    rotate_around_point, xCenter, yCenter, angle
                 )
             elif rotation_type == "arbitrary_point":
                 [tx, ty] = list(eval(self.rotate_point_entry.get() or "0, 0"))
-                print(list(eval(self.rotate_point_entry.get() or "0, 0")))
                 self.selected_object.apply_transformation(
                     rotate_around_point, tx, ty, angle
                 )
