@@ -292,6 +292,20 @@ class Sketchpad(Canvas):
         for obj in self.displayFile:
             self.drawObject(obj)
 
+    def get_width(self):
+        canvas_width = self.winfo_width()
+        if canvas_width == 1:
+            return CANVAS_WIDTH
+        else:
+            return canvas_width
+
+    def get_height(self):
+        canvas_height = self.winfo_height()
+        if canvas_height == 1:
+            return CANVAS_HEIGHT
+        else:
+            return canvas_height
+
     def drawText(self):
         self.create_text(
             10,
@@ -302,8 +316,8 @@ class Sketchpad(Canvas):
         )
 
         self.create_text(
-            950,
-            980,
+            self.get_width() - 50,
+            self.get_height() - 20,
             anchor="se",
             text="Xwmin: "
             + str(round(self.window.xMin, 2))
@@ -320,7 +334,7 @@ class Sketchpad(Canvas):
         )
 
         self.create_text(
-            960,
+            self.get_width() - 40,
             10,
             anchor="ne",
             fill="white",
@@ -399,6 +413,6 @@ class Sketchpad(Canvas):
             yCenter = yCenter / len(self.selected_object.coords)
 
             self.selected_object.apply_transformation(
-                        scale, magnitude, magnitude, xCenter, yCenter
+                scale, magnitude, magnitude, xCenter, yCenter
             )
             self.repaint()
