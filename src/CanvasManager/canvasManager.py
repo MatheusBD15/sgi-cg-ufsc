@@ -8,7 +8,9 @@ from CanvasManager.transformations import (
     rotate_around_point,
     rotate_around_world,
 )
-from CanvasManager.helpers import get_center_of_object
+from CanvasManager.helpers import get_center_of_object, calculate_angle
+from CanvasManager.world import World
+import numpy as np
 
 
 class CanvasManager:
@@ -27,6 +29,7 @@ class CanvasManager:
 
         # Representa um recorte do mundo
         self.window = Window(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
+        self.world = World((1, 0), (0, 1))
         self.display_file = STARTING_DISPLAY_FILE
         self.objects_var = StringVar(value=self.get_all_object_names())
 
@@ -101,31 +104,34 @@ class CanvasManager:
     def handle_key_press(self, event: Event):
         movement_speed = self.movement_speed
 
+        window_center = np.array(self.window.center)
+        window_view_up = np.array(self.window.view_up_vector)
+
         if event.keysym == "Right":
-            self.window.xMax += movement_speed
-            self.window.xMin += movement_speed
+            right_view_up = np.array([window_view_up[1], -window_view_up[0]])
+            self.window.center = (window_center) + (movement_speed * right_view_up)
+
         if event.keysym == "Left":
-            self.window.xMax -= movement_speed
-            self.window.xMin -= movement_speed
+            left_view_up = np.array([-window_view_up[1], window_view_up[0]])
+            self.window.center = (window_center) + (movement_speed * left_view_up)
+
         if event.keysym == "Down":
-            self.window.yMax -= movement_speed
-            self.window.yMin -= movement_speed
+            self.window.center = (window_center) + (-movement_speed * window_view_up)
         if event.keysym == "Up":
-            self.window.yMax += movement_speed
-            self.window.yMin += movement_speed
+            self.window.center = (window_center) + (movement_speed * window_view_up)
 
         self.repaint()
 
     def viewport_transform_2d(self, coords: tuple[float]):
         (xw, yw) = coords
-        window = self.window
         viewport = self.viewport
-        xvp = ((xw - window.xMin) / (window.xMax - window.xMin)) * (
-            viewport.xMax - viewport.xMin
-        )
-        yvp = (1 - ((yw - window.yMin) / (window.yMax - window.yMin))) * (
-            viewport.yMax - viewport.yMin
-        )
+
+        xMin = -1
+        xMax = 1
+        yMin = -1
+        yMax = 1
+        xvp = ((xw - xMin) / (xMax - xMin)) * (viewport.xMax - viewport.xMin)
+        yvp = (1 - ((yw - yMin) / (yMax - yMin))) * (viewport.yMax - viewport.yMin)
         return (xvp, yvp)
 
     def add_object(self, obj: ScreenObject):
@@ -196,26 +202,29 @@ class CanvasManager:
         )
 
     def draw_object(self, obj: ScreenObject):
+        obj.normalize_coords(self.window)
         if obj.type == "point":
-            width = 5
+            width = 0.01
             if self.selected_object and self.selected_object.name == obj.name:
-                width = 10
+                width = 0.02
 
-            [(xw, yw)] = obj.world_coords
+            [(xw, yw)] = obj.normalized_coords
             (xvp1, yvp1) = self.viewport_transform_2d((xw - width, yw - width))
             (xvp2, yvp2) = self.viewport_transform_2d((xw + width, yw + width))
 
             # criar oval para representar um ponto
             self.canvas.create_oval(xvp1, yvp1, xvp2, yvp2, fill=obj.color)
         else:
-            for index, _el in enumerate(obj.world_coords):
+            for index, _el in enumerate(obj.normalized_coords):
                 if index == 0:
                     pass
                 else:
                     (xvp1, yvp1) = self.viewport_transform_2d(
-                        obj.world_coords[index - 1]
+                        obj.normalized_coords[index - 1]
                     )
-                    (xvp2, yvp2) = self.viewport_transform_2d(obj.world_coords[index])
+                    (xvp2, yvp2) = self.viewport_transform_2d(
+                        obj.normalized_coords[index]
+                    )
 
                     width = 2
                     if self.selected_object and self.selected_object.name == obj.name:

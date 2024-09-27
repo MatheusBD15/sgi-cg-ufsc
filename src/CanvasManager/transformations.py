@@ -56,3 +56,23 @@ def apply_transformation(coords, matrix):
     homogeneous_coords = np.array([list(coord) + [1] for coord in coords])
     transformed_coords = np.dot(homogeneous_coords, matrix.T)
     return [tuple(coord[:2]) for coord in transformed_coords]
+
+
+def normalized_coordinate_transform(coords, window):
+    angle_rad = np.radians(window.rotationAngle)
+
+    (wcx, wcy) = window.center
+    translate_to_center = np.array([[1, 0, -wcx], [0, 1, -wcy], [0, 0, 1]])
+
+    rotate = np.array(
+        [
+            [np.cos(angle_rad), -np.sin(angle_rad), 0],
+            [np.sin(angle_rad), np.cos(angle_rad), 0],
+            [0, 0, 1],
+        ]
+    )
+    sx = 1 / window.xMax
+    sy = 1 / window.yMax
+    scaling_matrix = np.array([[sx, 0, 0], [0, sy, 0], [0, 0, 1]])
+    resulting_matrix = np.dot(scaling_matrix, np.dot(rotate, translate_to_center))
+    return apply_transformation(coords, resulting_matrix)
