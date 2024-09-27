@@ -1,5 +1,4 @@
 from tkinter import *
-from tkinter import ttk
 from vars import *
 from CanvasManager.viewport import Viewport
 from CanvasManager.window import Window
@@ -9,10 +8,11 @@ from CanvasManager.transformations import (
     rotate_around_point,
     rotate_around_world,
 )
+from CanvasManager.helpers import get_center_of_object
 
 
 class CanvasManager:
-    def __init__(self, canvas: Canvas, menu: LabelFrame):
+    def __init__(self, canvas: Canvas):
         self.canvas = canvas
         self.movement_speed = 50
         self.canvas.bind("<Button-4>", self.handle_zoom_in)
@@ -33,151 +33,7 @@ class CanvasManager:
         self.selected_object = None
         self.objects_list = None
 
-        # Add transformation controls
-        self.add_transformation_controls(menu)
-
         self.repaint()
-
-    def add_transformation_controls(self, menu):
-        control_frame = ttk.LabelFrame(menu, text="Transformações")
-        control_frame.grid(column=0, row=2, sticky=(W, E))
-        control_frame.rowconfigure(0, pad=20, weight=1)
-        control_frame.columnconfigure(0, pad=20, weight=1)
-        control_frame.columnconfigure(1, pad=20, weight=1)
-
-        translation_frame = ttk.LabelFrame(control_frame, text="Translação")
-        translation_frame.grid(column=0, row=0, sticky=(W, E))
-        translation_frame.rowconfigure(0, pad=10)
-        translation_frame.rowconfigure(1, pad=10)
-        translation_frame.rowconfigure(2, pad=10)
-        translation_frame.columnconfigure(0, pad=10)
-
-        ttk.Label(translation_frame, text="Magnitude:").grid(column=0, row=0)
-
-        translation_magnitude = StringVar()
-        self.translation_entry = ttk.Entry(
-            translation_frame, textvariable=translation_magnitude, width=20
-        )
-        self.translation_entry.grid(row=0, column=1)
-
-        ttk.Button(
-            translation_frame,
-            text="←",
-            command=lambda: self.transform_selected(
-                "translate", -1 * float(self.translation_entry.get() or 10), 0
-            ),
-        ).grid(row=1, column=0)
-        ttk.Button(
-            translation_frame,
-            text="→",
-            command=lambda: self.transform_selected(
-                "translate", float(self.translation_entry.get() or 10), 0
-            ),
-        ).grid(row=1, column=1)
-        ttk.Button(
-            translation_frame,
-            text="↑",
-            command=lambda: self.transform_selected(
-                "translate", 0, -1 * float(self.translation_entry.get() or 10)
-            ),
-        ).grid(row=2, column=0)
-        ttk.Button(
-            translation_frame,
-            text="↓",
-            command=lambda: self.transform_selected(
-                "translate", 0, float(self.translation_entry.get() or 10)
-            ),
-        ).grid(row=2, column=1)
-
-        scale_frame = ttk.LabelFrame(control_frame, text="Escalonamento")
-        scale_frame.grid(column=1, row=0, sticky=(N, W, E, S))
-        scale_frame.rowconfigure(0, pad=10)
-        scale_frame.rowconfigure(1, pad=10)
-        scale_frame.columnconfigure(0, pad=10)
-
-        ttk.Label(scale_frame, text="Magnitude em %:").grid(column=0, row=0)
-
-        scale_magnitude = StringVar()
-        self.scale_entry = ttk.Entry(
-            scale_frame, textvariable=scale_magnitude, width=20
-        )
-        self.scale_entry.grid(row=0, column=1)
-
-        ttk.Button(
-            scale_frame,
-            text="+",
-            command=lambda: self.scale_selected(
-                1 + (float(self.scale_entry.get() or 10)) / 100,
-            ),
-        ).grid(row=1, column=0)
-        ttk.Button(
-            scale_frame,
-            text="-",
-            command=lambda: self.scale_selected(
-                1 - (float(self.scale_entry.get() or 10)) / 100,
-            ),
-        ).grid(row=1, column=1)
-
-        rotate_frame = ttk.LabelFrame(control_frame, text="Rotação")
-        rotate_frame.grid(column=0, row=1, sticky=(N, W, E, S), columnspan=2)
-        rotate_frame.rowconfigure(0, pad=10)
-        rotate_frame.rowconfigure(1, pad=10)
-        rotate_frame.columnconfigure(0, pad=10)
-        rotate_frame.columnconfigure(1, pad=10)
-        rotate_frame.columnconfigure(2, pad=10)
-
-        ttk.Label(rotate_frame, text="Rotação em graus:").grid(column=0, row=0)
-
-        rotate_magnitude = StringVar()
-        self.rotate_entry = ttk.Entry(
-            rotate_frame, textvariable=rotate_magnitude, width=20
-        )
-        self.rotate_entry.grid(row=0, column=1)
-
-        rotate_type_frame = ttk.Frame(rotate_frame)
-        rotate_type_frame.grid(row=0, column=2)
-
-        self.rotate_type = StringVar()
-        self.rotate_type.set("object")
-        ttk.Radiobutton(
-            rotate_type_frame,
-            text="Em torno do centro do mundo",
-            variable=self.rotate_type,
-            value="world",
-        ).grid(row=0, column=0)
-        ttk.Radiobutton(
-            rotate_type_frame,
-            text="Em torno do centro do objeto",
-            variable=self.rotate_type,
-            value="object",
-        ).grid(row=1, column=0)
-        ttk.Radiobutton(
-            rotate_type_frame,
-            text="Em torno de ponto arbitrário",
-            variable=self.rotate_type,
-            value="arbitrary_point",
-        ).grid(row=2, column=0)
-
-        ttk.Label(
-            rotate_type_frame, text="Ponto arbitrário para rotação, formato x, y:"
-        ).grid(row=3, column=0)
-
-        rotate_point = StringVar()
-        self.rotate_point_entry = ttk.Entry(
-            rotate_frame, textvariable=rotate_point, width=10
-        )
-        self.rotate_point_entry.grid(row=1, column=2)
-
-        ttk.Button(
-            rotate_frame,
-            text="↺",
-            command=lambda: self.rotate_selected("counterclockwise"),
-        ).grid(row=1, column=0)
-        ttk.Button(
-            rotate_frame,
-            text="↻",
-            command=lambda: self.rotate_selected("clockwise"),
-        ).grid(row=1, column=1)
 
     def set_objects_list(self, listbox):
         self.objects_list = listbox
@@ -209,16 +65,8 @@ class CanvasManager:
             if rotation_type == "world":
                 self.selected_object.apply_transformation(rotate_around_world, angle)
             elif rotation_type == "object":
-                # Calcula centro geométrico do objeto
-                xCenter = 0
-                yCenter = 0
+                (xCenter, yCenter) = get_center_of_object(self.selected_object.coords)
 
-                for x, y in self.selected_object.coords:
-                    xCenter += x
-                    yCenter += y
-
-                xCenter = xCenter / len(self.selected_object.coords)
-                yCenter = yCenter / len(self.selected_object.coords)
                 self.selected_object.apply_transformation(
                     rotate_around_point, xCenter, yCenter, angle
                 )
@@ -401,16 +249,7 @@ class CanvasManager:
 
     def scale_selected(self, magnitude):
         if self.selected_object:
-            # Calcula centro geométrico do objeto
-            xCenter = 0
-            yCenter = 0
-
-            for x, y in self.selected_object.coords:
-                xCenter += x
-                yCenter += y
-
-            xCenter = xCenter / len(self.selected_object.coords)
-            yCenter = yCenter / len(self.selected_object.coords)
+            (xCenter, yCenter) = get_center_of_object(self.selected_object.coords)
 
             self.selected_object.apply_transformation(
                 scale, magnitude, magnitude, xCenter, yCenter

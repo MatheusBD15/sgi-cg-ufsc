@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter import ttk
 from vars import *
 from CanvasManager.canvasManager import CanvasManager
+from CanvasManager.addTransformationControls import add_transformation_controls
 from Dialog.addObjDialog import AddObjDialog
 
 
@@ -35,7 +36,8 @@ def main():
     canvas.grid(column=1, row=0, rowspan=2)
     canvas.focus()
 
-    canvas_manager = CanvasManager(menu=menu, canvas=canvas)
+    canvas_manager = CanvasManager(canvas=canvas)
+    add_transformation_controls(canvas_manager, menu)
 
     objects_list = Listbox(menu, listvariable=canvas_manager.get_objects_list())
     objects_list.grid(column=0, row=1, sticky=(N, W, E))
