@@ -4,3 +4,7 @@ class Window:
         self.xMax = xMax
         self.yMin = yMin
         self.yMax = yMax
+
+        self.origin = [0, 0]
+        self.xv = [20, 20]
+        self.yv = [20, 20]

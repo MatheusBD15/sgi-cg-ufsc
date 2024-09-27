@@ -65,7 +65,9 @@ class CanvasManager:
             if rotation_type == "world":
                 self.selected_object.apply_transformation(rotate_around_world, angle)
             elif rotation_type == "object":
-                (xCenter, yCenter) = get_center_of_object(self.selected_object.coords)
+                (xCenter, yCenter) = get_center_of_object(
+                    self.selected_object.world_coords
+                )
 
                 self.selected_object.apply_transformation(
                     rotate_around_point, xCenter, yCenter, angle
@@ -199,19 +201,21 @@ class CanvasManager:
             if self.selected_object and self.selected_object.name == obj.name:
                 width = 10
 
-            [(xw, yw)] = obj.coords
+            [(xw, yw)] = obj.world_coords
             (xvp1, yvp1) = self.viewport_transform_2d((xw - width, yw - width))
             (xvp2, yvp2) = self.viewport_transform_2d((xw + width, yw + width))
 
             # criar oval para representar um ponto
             self.canvas.create_oval(xvp1, yvp1, xvp2, yvp2, fill=obj.color)
         else:
-            for index, _el in enumerate(obj.coords):
+            for index, _el in enumerate(obj.world_coords):
                 if index == 0:
                     pass
                 else:
-                    (xvp1, yvp1) = self.viewport_transform_2d(obj.coords[index - 1])
-                    (xvp2, yvp2) = self.viewport_transform_2d(obj.coords[index])
+                    (xvp1, yvp1) = self.viewport_transform_2d(
+                        obj.world_coords[index - 1]
+                    )
+                    (xvp2, yvp2) = self.viewport_transform_2d(obj.world_coords[index])
 
                     width = 2
                     if self.selected_object and self.selected_object.name == obj.name:
@@ -249,7 +253,7 @@ class CanvasManager:
 
     def scale_selected(self, magnitude):
         if self.selected_object:
-            (xCenter, yCenter) = get_center_of_object(self.selected_object.coords)
+            (xCenter, yCenter) = get_center_of_object(self.selected_object.world_coords)
 
             self.selected_object.apply_transformation(
                 scale, magnitude, magnitude, xCenter, yCenter

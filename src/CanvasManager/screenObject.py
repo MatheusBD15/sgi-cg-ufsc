@@ -4,9 +4,10 @@ class ScreenObject:
     ) -> None:
         self.name = name
         self.type = type
-        self.coords = coords  # List of (x, y) tuples
+        self.world_coords = coords  # List of (x, y) tuples
+        self.normalized_coords = coords
         self.color = color
         self.selected = False
 
     def apply_transformation(self, transformation_func, *args):
-        self.coords = transformation_func(self.coords, *args)
+        self.world_coords = transformation_func(self.world_coords, *args)
