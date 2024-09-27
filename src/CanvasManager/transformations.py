@@ -52,6 +52,23 @@ def rotate_around_point(coords, tx, ty, angle):
     return apply_transformation(coords, resulting_matrix)
 
 
+def rotate_direction_vector(vector, angle):
+    np_vector = np.array(vector)
+    angle_in_radians = np.radians(angle)
+    # Create the rotation matrix
+    rotation_matrix = np.array(
+        [
+            [np.cos(angle_in_radians), -np.sin(angle_in_radians)],
+            [np.sin(angle_in_radians), np.cos(angle_in_radians)],
+        ]
+    )
+
+    # Rotate the vector
+    rotated_vector = np.dot(rotation_matrix, np_vector)
+
+    return rotated_vector
+
+
 def apply_transformation(coords, matrix):
     homogeneous_coords = np.array([list(coord) + [1] for coord in coords])
     transformed_coords = np.dot(homogeneous_coords, matrix.T)
@@ -71,8 +88,8 @@ def normalized_coordinate_transform(coords, window):
             [0, 0, 1],
         ]
     )
-    sx = 1 / window.xMax
-    sy = 1 / window.yMax
+    sx = 2 / window.xMax
+    sy = 2 / window.yMax
     scaling_matrix = np.array([[sx, 0, 0], [0, sy, 0], [0, 0, 1]])
     resulting_matrix = np.dot(scaling_matrix, np.dot(rotate, translate_to_center))
     return apply_transformation(coords, resulting_matrix)

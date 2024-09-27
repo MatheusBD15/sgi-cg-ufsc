@@ -142,3 +142,15 @@ def add_transformation_controls(canvasManager, menu: LabelFrame):
         text="↻",
         command=lambda: canvasManager.rotate_selected("clockwise"),
     ).grid(row=1, column=1)
+
+    ttk.Label(rotate_frame, text="Rotação da window:").grid(column=0, row=2)
+    ttk.Button(
+        rotate_frame,
+        text="↺",
+        command=lambda: canvasManager.rotate_window_counter_clock_wise(),
+    ).grid(row=3, column=0)
+    ttk.Button(
+        rotate_frame,
+        text="↻",
+        command=lambda: canvasManager.rotate_window_clockwise(),
+    ).grid(row=3, column=1)

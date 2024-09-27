@@ -7,8 +7,9 @@ from CanvasManager.transformations import (
     scale,
     rotate_around_point,
     rotate_around_world,
+    normalized_coordinate_transform,
 )
-from CanvasManager.helpers import get_center_of_object, calculate_angle
+from CanvasManager.helpers import get_center_of_object
 from CanvasManager.world import World
 import numpy as np
 
@@ -89,7 +90,7 @@ class CanvasManager:
             self.repaint()
 
     def handle_mouse_movement(self, event: Event):
-        (xw, yw) = self.viewport_transform_2d((event.x, event.y))
+        [(xw, yw)] = normalized_coordinate_transform([(event.x, event.y)], self.window)
         self.mouseXw = xw
         self.mouseYw = yw
 
@@ -105,7 +106,7 @@ class CanvasManager:
         movement_speed = self.movement_speed
 
         window_center = np.array(self.window.center)
-        window_view_up = np.array(self.window.view_up_vector)
+        window_view_up = self.window.view_up_vector
 
         if event.keysym == "Right":
             right_view_up = np.array([window_view_up[1], -window_view_up[0]])
@@ -143,6 +144,14 @@ class CanvasManager:
         self.canvas.delete("all")
         self.draw_all_objects()
         self.draw_text()
+
+    def rotate_window_clockwise(self):
+        self.window.set_rotation(self.window.rotationAngle + 5)
+        self.repaint()
+
+    def rotate_window_counter_clock_wise(self):
+        self.window.set_rotation(self.window.rotationAngle - 5)
+        self.repaint()
 
     def draw_all_objects(self):
         for obj in self.display_file:
