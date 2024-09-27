@@ -1,4 +1,4 @@
-from Sketchpad.screenObject import ScreenObject
+from CanvasManager.screenObject import ScreenObject
 
 CANVAS_HEIGHT = 1000
 CANVAS_WIDTH = 1000
