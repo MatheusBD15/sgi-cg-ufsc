@@ -5,7 +5,7 @@ CANVAS_WIDTH = 1000
 
 
 # POINT, LINE OU WIREFRAME
-objTypes = ["point", "line", "wireframe"]
+OBJECT_TYPES = ["point", "line", "wireframe"]
 STARTING_DISPLAY_FILE = [
     ScreenObject("ponto1", "point", ((500, 900),), "white"),
     ScreenObject("linha1", "line", ((200, 350), (250, 500)), "red"),

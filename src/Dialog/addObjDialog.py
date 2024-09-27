@@ -28,9 +28,9 @@ class AddObjDialog(Toplevel):
         obj_type_combobox_label.grid(row=0, column=0)
 
         self.obj_type_combobox = ttk.Combobox(main_frame)
-        self.obj_type_combobox["values"] = obj_types
+        self.obj_type_combobox["values"] = OBJECT_TYPES
         self.obj_type_combobox.state(["readonly"])
-        self.obj_type_combobox.set(obj_types[0])
+        self.obj_type_combobox.set(OBJECT_TYPES[0])
         self.obj_type_combobox.grid(row=1, column=0)
 
         color_combobox_label = ttk.Label(main_frame, text="Cor")
