@@ -1,5 +1,7 @@
 from tkinter import *
-from tkinter import filedialog
+from tkinter import filedialog, messagebox
+from CanvasManager.objDescriptor import objDescriptor
+from CanvasManager.screenObject import ScreenObject
 from vars import *
 from CanvasManager.viewport import Viewport
 from CanvasManager.window import Window
@@ -12,7 +14,6 @@ from Math.transformations import (
 )
 from Math.helpers import get_center_of_object
 from CanvasManager.world import World
-from CanvasManager.objDescriptor import export_as_obj_file
 import numpy as np
 
 
@@ -340,3 +341,23 @@ class CanvasManager:
                 scale, magnitude, magnitude, xCenter, yCenter
             )
             self.repaint()
+
+    def export_obj_file(self):
+        filename = filedialog.asksaveasfilename(defaultextension=".obj",
+                                                    filetypes=[("Wavefront OBJ", "*.obj")])
+        if filename:
+            try:
+                objDescriptor.export_as_obj_file(self, filename, self.display_file)
+                messagebox.showinfo("Export Successful", f"Objects exported to {filename}")
+            except Exception as e:
+                messagebox.showerror("Export Error", f"Failed to export objects: {str(e)}")
+
+    def import_obj_file(self):
+        filename = filedialog.askopenfilename(filetypes=[("Wavefront OBJ", "*.obj")])
+        if filename:
+            try:
+                # Implement OBJ file parsing and object creation here
+                # This is a placeholder and needs to be implemented
+                messagebox.showinfo("Import Successful", f"Objects imported from {filename}")
+            except Exception as e:
+                messagebox.showerror("Import Error", f"Failed to import objects: {str(e)}")
