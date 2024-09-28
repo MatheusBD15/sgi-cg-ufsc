@@ -12,6 +12,7 @@ from Math.transformations import (
 )
 from Math.helpers import get_center_of_object
 from CanvasManager.world import World
+from CanvasManager.objDescriptor import export_as_obj_file
 import numpy as np
 
 
@@ -44,7 +45,7 @@ class CanvasManager:
         filename = filedialog.asksaveasfilename()
 
         if filename != "":
-            print(filename)
+            export_as_obj_file(filename, self.display_file)
 
     def import_obj_file(self):
         filename = filedialog.askopenfilename()
