@@ -27,30 +27,22 @@ def add_transformation_controls(canvasManager, menu: LabelFrame):
     ttk.Button(
         translation_frame,
         text="←",
-        command=lambda: canvasManager.transform_selected(
-            "translate", -1 * float(canvasManager.translation_entry.get() or 10), 0
-        ),
+        command=canvasManager.translate_selected_left,
     ).grid(row=1, column=0)
     ttk.Button(
         translation_frame,
         text="→",
-        command=lambda: canvasManager.transform_selected(
-            "translate", float(canvasManager.translation_entry.get() or 10), 0
-        ),
+        command=canvasManager.translate_selected_right,
     ).grid(row=1, column=1)
     ttk.Button(
         translation_frame,
         text="↑",
-        command=lambda: canvasManager.transform_selected(
-            "translate", 0, -1 * float(canvasManager.translation_entry.get() or 10)
-        ),
+        command=canvasManager.translate_selected_up,
     ).grid(row=2, column=0)
     ttk.Button(
         translation_frame,
         text="↓",
-        command=lambda: canvasManager.transform_selected(
-            "translate", 0, float(canvasManager.translation_entry.get() or 10)
-        ),
+        command=canvasManager.translate_selected_down,
     ).grid(row=2, column=1)
 
     scale_frame = ttk.LabelFrame(control_frame, text="Escalonamento")

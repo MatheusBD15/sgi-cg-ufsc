@@ -89,6 +89,58 @@ class CanvasManager:
                 self.selected_object.apply_transformation(translate, *args)
             self.repaint()
 
+    def translate_selected_right(self):
+        if self.selected_object:
+            window_view_up = self.window.view_up_vector
+            right_vector = np.array([window_view_up[1], -window_view_up[0]])
+
+            translation_distance = float(self.translation_entry.get() or 10)
+            translation_vector = translation_distance * right_vector
+
+            self.selected_object.apply_transformation(
+                translate, translation_vector[0], translation_vector[1]
+            )
+            self.repaint()
+
+    def translate_selected_left(self):
+        if self.selected_object:
+            window_view_up = self.window.view_up_vector
+            left_vector = np.array([-window_view_up[1], window_view_up[0]])
+
+            translation_distance = float(self.translation_entry.get() or 10)
+            translation_vector = translation_distance * left_vector
+
+            self.selected_object.apply_transformation(
+                translate, translation_vector[0], translation_vector[1]
+            )
+            self.repaint()
+
+    def translate_selected_up(self):
+        if self.selected_object:
+            window_view_up = self.window.view_up_vector
+
+            translation_distance = float(self.translation_entry.get() or 10)
+            translation_vector = translation_distance * window_view_up
+
+            self.selected_object.apply_transformation(
+                translate, translation_vector[0], translation_vector[1]
+            )
+            self.repaint()
+
+    def translate_selected_down(self):
+        if self.selected_object:
+            window_view_up = self.window.view_up_vector
+
+            translation_distance = float(self.translation_entry.get() or 10)
+            translation_vector = (
+                -translation_distance * window_view_up
+            )  # Downward translation
+
+            self.selected_object.apply_transformation(
+                translate, translation_vector[0], translation_vector[1]
+            )
+            self.repaint()
+
     def handle_mouse_movement(self, event: Event):
         [(xw, yw)] = normalized_coordinate_transform([(event.x, event.y)], self.window)
         self.mouseXw = xw
@@ -265,9 +317,6 @@ class CanvasManager:
             obj = self.display_file[selected_index[0]]
             getattr(obj, transformation)(*args)
             self.repaint()
-
-    def translate_selected(self, tx, ty):
-        self.transform_selected_object("translate", tx, ty)
 
     def scale_selected(self, magnitude):
         if self.selected_object:
