@@ -3,6 +3,7 @@ from tkinter import ttk
 from vars import *
 from CanvasManager.canvasManager import CanvasManager
 from Ui.addTransformationControls import add_transformation_controls
+from Ui.addFileControls import add_file_controls
 from Ui.addObjDialog import AddObjDialog
 
 
@@ -33,11 +34,12 @@ def main():
         borderwidth=5,
         relief="sunken",
     )
-    canvas.grid(column=1, row=0, rowspan=2)
+    canvas.grid(column=1, row=0)
     canvas.focus()
 
     canvas_manager = CanvasManager(canvas=canvas)
     add_transformation_controls(canvas_manager, menu)
+    add_file_controls(canvas_manager, main_frame)
 
     objects_list = Listbox(menu, listvariable=canvas_manager.get_objects_list())
     objects_list.grid(column=0, row=1, sticky=(N, W, E))

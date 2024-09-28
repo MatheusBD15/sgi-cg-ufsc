@@ -1,8 +1,9 @@
 from tkinter import *
 from tkinter import ttk
+from CanvasManager.canvasManager import CanvasManager
 
 
-def add_transformation_controls(canvasManager, menu: LabelFrame):
+def add_transformation_controls(canvasManager: CanvasManager, menu: LabelFrame):
     control_frame = ttk.LabelFrame(menu, text="Transformações")
     control_frame.grid(column=0, row=2, sticky=(W, E))
     control_frame.rowconfigure(0, pad=20, weight=1)

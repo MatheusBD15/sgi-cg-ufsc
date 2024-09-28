@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter import filedialog
 from vars import *
 from CanvasManager.viewport import Viewport
 from CanvasManager.window import Window
@@ -38,6 +39,18 @@ class CanvasManager:
         self.objects_list = None
 
         self.repaint()
+
+    def export_obj_file(self):
+        filename = filedialog.asksaveasfilename()
+
+        if filename != "":
+            print(filename)
+
+    def import_obj_file(self):
+        filename = filedialog.askopenfilename()
+
+        if filename != "":
+            print(filename)
 
     def set_objects_list(self, listbox):
         self.objects_list = listbox
