@@ -1,4 +1,4 @@
-from CanvasManager.transformations import rotate_direction_vector
+from Math.transformations import rotate_direction_vector
 import numpy as np
 
 

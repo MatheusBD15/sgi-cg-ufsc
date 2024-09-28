@@ -2,8 +2,8 @@ from tkinter import *
 from tkinter import ttk
 from vars import *
 from CanvasManager.canvasManager import CanvasManager
-from CanvasManager.addTransformationControls import add_transformation_controls
-from Dialog.addObjDialog import AddObjDialog
+from Ui.addTransformationControls import add_transformation_controls
+from Ui.addObjDialog import AddObjDialog
 
 
 def main():

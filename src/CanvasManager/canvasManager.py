@@ -2,14 +2,14 @@ from tkinter import *
 from vars import *
 from CanvasManager.viewport import Viewport
 from CanvasManager.window import Window
-from CanvasManager.transformations import (
+from Math.transformations import (
     translate,
     scale,
     rotate_around_point,
     rotate_around_world,
     normalized_coordinate_transform,
 )
-from CanvasManager.helpers import get_center_of_object
+from Math.helpers import get_center_of_object
 from CanvasManager.world import World
 import numpy as np
 

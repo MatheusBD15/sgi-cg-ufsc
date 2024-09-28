@@ -1,4 +1,4 @@
-from CanvasManager.transformations import normalized_coordinate_transform
+from Math.transformations import normalized_coordinate_transform
 
 
 class ScreenObject:
