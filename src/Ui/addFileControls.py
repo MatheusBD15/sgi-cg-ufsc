@@ -1,5 +1,5 @@
 from tkinter import *
-from tkinter import ttk
+from tkinter import ttk, filedialog
 from CanvasManager.canvasManager import CanvasManager
 
 def add_file_controls(canvasManager: CanvasManager, main_frame: Frame):
@@ -12,6 +12,9 @@ def add_file_controls(canvasManager: CanvasManager, main_frame: Frame):
     ttk.Button(
         control_frame, text="Exportar .obj", command=canvasManager.export_obj_file
     ).grid(column=0, row=0)
-    # ttk.Button(
-    #     control_frame, text="Importar .obj", command=canvasManager.import_obj_file
-    # ).grid(column=1, row=0)
+
+    ttk.Button(
+        control_frame,
+        text="Importar .obj",
+        command=lambda: canvasManager.import_obj_file(filedialog.askopenfilename(filetypes=[("Wavefront OBJ", "*.obj")]))
+    ).grid(column=1, row=0)
