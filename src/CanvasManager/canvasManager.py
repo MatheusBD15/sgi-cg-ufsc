@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter import filedialog, messagebox
-from CanvasManager.objDescriptor import objDescriptor
+from CanvasManager.objFileManager import export_as_obj_file, import_obj_file
 from CanvasManager.screenObject import ScreenObject
 from vars import *
 from CanvasManager.viewport import Viewport
@@ -25,6 +25,7 @@ class CanvasManager:
         self.canvas.bind("<Button-5>", self.handle_zoom_out)
         self.canvas.bind_all("<KeyPress>", self.handle_key_press)
         self.canvas.bind("<Motion>", self.handle_mouse_movement)
+        self.canvas.bind_all("<Delete>", self.delete_selected_object)
         self.mouseXw = 0
         self.mouseYw = 0
 
@@ -41,18 +42,6 @@ class CanvasManager:
         self.objects_list = None
 
         self.repaint()
-
-    def export_obj_file(self):
-        filename = filedialog.asksaveasfilename()
-
-        if filename != "":
-            export_as_obj_file(filename, self.display_file)
-
-    def import_obj_file(self):
-        filename = filedialog.askopenfilename()
-
-        if filename != "":
-            print(filename)
 
     def set_objects_list(self, listbox):
         self.objects_list = listbox
@@ -342,22 +331,33 @@ class CanvasManager:
             )
             self.repaint()
 
+    def delete_selected_object(self, event=None):
+        if self.selected_object:
+            confirm = messagebox.askyesno(
+                "Confirm Deletion",
+                f"Are you sure you want to delete the object '{self.selected_object.name}'?"
+            )
+            if confirm:
+                self.display_file.remove(self.selected_object)
+                self.selected_object = None
+                self.objects_var.set(self.get_all_object_names())
+                self.repaint()
+                messagebox.showinfo("Deletion Successful", "Object has been deleted.")
+        else:
+            messagebox.showinfo("No Selection", "No object is currently selected.")
+
     def export_obj_file(self):
         filename = filedialog.asksaveasfilename(defaultextension=".obj",
-                                                    filetypes=[("Wavefront OBJ", "*.obj")])
+                                                filetypes=[("Wavefront OBJ", "*.obj")])
         if filename:
             try:
-                objDescriptor.export_as_obj_file(self, filename, self.display_file)
+                export_as_obj_file(filename, self.display_file)
                 messagebox.showinfo("Export Successful", f"Objects exported to {filename}")
             except Exception as e:
                 messagebox.showerror("Export Error", f"Failed to export objects: {str(e)}")
 
-    def import_obj_file(self):
-        filename = filedialog.askopenfilename(filetypes=[("Wavefront OBJ", "*.obj")])
-        if filename:
-            try:
-                # Implement OBJ file parsing and object creation here
-                # This is a placeholder and needs to be implemented
-                messagebox.showinfo("Import Successful", f"Objects imported from {filename}")
-            except Exception as e:
-                messagebox.showerror("Import Error", f"Failed to import objects: {str(e)}")
+    def import_obj_file(self, filename: str):
+        new_objects = import_obj_file(filename)
+        self.display_file.extend(new_objects)
+        self.objects_var.set(self.get_all_object_names())
+        self.repaint()
