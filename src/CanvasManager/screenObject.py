@@ -1,9 +1,8 @@
 from Math.transformations import normalized_coordinate_transform
 
-
 class ScreenObject:
     def __init__(
-        self, name: str, type: str, coords: list[tuple[float, float]], color: str
+            self, name: str, type: str, coords: list[tuple[float, float]], color: str
     ) -> None:
         self.name = name
         self.type = type
