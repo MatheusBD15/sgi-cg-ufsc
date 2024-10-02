@@ -334,27 +334,32 @@ class CanvasManager:
     def delete_selected_object(self, event=None):
         if self.selected_object:
             confirm = messagebox.askyesno(
-                "Confirm Deletion",
-                f"Are you sure you want to delete the object '{self.selected_object.name}'?"
+                "Confirmar deleção",
+                f"Tem certeza que deseja deletar o objeto '{self.selected_object.name}'?",
             )
             if confirm:
                 self.display_file.remove(self.selected_object)
                 self.selected_object = None
                 self.objects_var.set(self.get_all_object_names())
                 self.repaint()
-                messagebox.showinfo("Deletion Successful", "Object has been deleted.")
+                messagebox.showinfo("Deleção bem sucedida", "Objeto deletado.")
         else:
-            messagebox.showinfo("No Selection", "No object is currently selected.")
+            messagebox.showinfo("No Selection", "Nenhum objeto está selecionado.")
 
     def export_obj_file(self):
-        filename = filedialog.asksaveasfilename(defaultextension=".obj",
-                                                filetypes=[("Wavefront OBJ", "*.obj")])
+        filename = filedialog.asksaveasfilename(
+            defaultextension=".obj", filetypes=[("Wavefront OBJ", "*.obj")]
+        )
         if filename:
             try:
                 export_as_obj_file(filename, self.display_file)
-                messagebox.showinfo("Export Successful", f"Objects exported to {filename}")
+                messagebox.showinfo(
+                    "Exportação bem sucedida", f"Objetos exportados para {filename}"
+                )
             except Exception as e:
-                messagebox.showerror("Export Error", f"Failed to export objects: {str(e)}")
+                messagebox.showerror(
+                    "Erro de exportação", f"Erro ao exportar objetos: {str(e)}"
+                )
 
     def import_obj_file(self, filename: str):
         new_objects = import_obj_file(filename)

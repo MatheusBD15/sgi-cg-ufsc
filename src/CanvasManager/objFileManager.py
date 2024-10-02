@@ -1,6 +1,7 @@
 from CanvasManager.screenObject import ScreenObject
 import os
 
+
 def export_as_obj_file(filename: str, objects: list[ScreenObject]):
     with open(filename, "w") as f:
         # Write all vertices first
@@ -37,8 +38,9 @@ def export_as_obj_file(filename: str, objects: list[ScreenObject]):
     # Generate the MTL file
     generate_mtl_file(mtl_filename, colors)
 
-    print(f"Successfully exported {len(objects)} objects to {filename}")
-    print(f"Successfully generated MTL file: {mtl_filename}")
+    print(f"{len(objects)} objectos exportados para {filename}")
+    print(f"Arquivo MTL gerado com sucesso: {mtl_filename}")
+
 
 def generate_mtl_file(filename: str, colors: set):
     color_values = {
@@ -50,11 +52,11 @@ def generate_mtl_file(filename: str, colors: set):
         "cyan": (0.00, 1.00, 1.00),
         "purple": (0.50, 0.00, 0.50),
         "pink": (1.00, 0.75, 0.80),
-        "yellow": (1.00, 1.00, 0.00)
+        "yellow": (1.00, 1.00, 0.00),
     }
 
     with open(filename, "w") as f:
-        f.write("# Material definitions for OBJ file\n\n")
+        f.write("# Definições de material para arquivo OBJ\n\n")
 
         for color in colors:
             f.write(f"newmtl {color}\n")
@@ -76,7 +78,8 @@ def generate_mtl_file(filename: str, colors: set):
                 # f.write("illum 2\n")
             f.write("\n")
 
-    print(f"Successfully generated MTL file: {filename}")
+    print(f"Arquivo MTL gerado com sucesso: {filename}")
+
 
 def import_obj_file(filename: str) -> list[ScreenObject]:
     objects = []
@@ -84,35 +87,43 @@ def import_obj_file(filename: str) -> list[ScreenObject]:
     current_object = None
     current_material = None
 
-    with open(filename, 'r') as file:
+    with open(filename, "r") as file:
         for line in file:
             parts = line.strip().split()
             if not parts:
                 continue
 
-            if parts[0] == 'v':
+            if parts[0] == "v":
                 vertices.append((float(parts[1]), float(parts[2])))
-            elif parts[0] == 'o':
+            elif parts[0] == "o":
                 if current_object:
                     objects.append(current_object)
-                current_object = {'name': parts[1], 'type': None, 'coords': [], 'color': 'white'}
-            elif parts[0] == 'usemtl':
+                current_object = {
+                    "name": parts[1],
+                    "type": None,
+                    "coords": [],
+                    "color": "white",
+                }
+            elif parts[0] == "usemtl":
                 current_material = parts[1]
                 if current_object:
-                    current_object['color'] = current_material
-            elif parts[0] in ['p', 'l', 'f']:
+                    current_object["color"] = current_material
+            elif parts[0] in ["p", "l", "f"]:
                 if current_object:
-                    if parts[0] == 'p':
-                        current_object['type'] = 'point'
-                    elif parts[0] == 'l':
-                        current_object['type'] = 'line'
+                    if parts[0] == "p":
+                        current_object["type"] = "point"
+                    elif parts[0] == "l":
+                        current_object["type"] = "line"
                     else:
-                        current_object['type'] = 'wireframe'
+                        current_object["type"] = "wireframe"
 
                     for index in parts[1:]:
-                        current_object['coords'].append(vertices[int(index) - 1])
+                        current_object["coords"].append(vertices[int(index) - 1])
 
     if current_object:
         objects.append(current_object)
 
-    return [ScreenObject(obj['name'], obj['type'], obj['coords'], obj['color']) for obj in objects]
+    return [
+        ScreenObject(obj["name"], obj["type"], obj["coords"], obj["color"])
+        for obj in objects
+    ]
