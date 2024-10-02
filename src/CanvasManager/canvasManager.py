@@ -213,20 +213,21 @@ class CanvasManager:
         self.draw_text()
 
     def draw_clip_box(self):
-        height = self.get_height() - VIEWPORT_OFFSET
-        width = self.get_width() - VIEWPORT_OFFSET
+        height = CANVAS_HEIGHT - VIEWPORT_OFFSET / 2
+        width = CANVAS_WIDTH - VIEWPORT_OFFSET / 2
+        offset = VIEWPORT_OFFSET / 2
 
         self.canvas.create_line(
-            VIEWPORT_OFFSET,
-            VIEWPORT_OFFSET,
+            offset,
+            offset,
             width,
-            VIEWPORT_OFFSET,
+            offset,
             width=3,
             fill="red",
         )
         self.canvas.create_line(
             width,
-            VIEWPORT_OFFSET,
+            offset,
             width,
             height,
             width=3,
@@ -235,16 +236,16 @@ class CanvasManager:
         self.canvas.create_line(
             width,
             height,
-            VIEWPORT_OFFSET,
+            offset,
             height,
             width=3,
             fill="red",
         )
         self.canvas.create_line(
-            VIEWPORT_OFFSET,
+            offset,
             height,
-            VIEWPORT_OFFSET,
-            VIEWPORT_OFFSET,
+            offset,
+            offset,
             width=3,
             fill="red",
         )
@@ -261,20 +262,6 @@ class CanvasManager:
         for obj in self.display_file:
             self.draw_object(obj)
 
-    def get_width(self):
-        canvas_width = self.canvas.winfo_width()
-        if canvas_width == 1:
-            return CANVAS_WIDTH
-        else:
-            return canvas_width
-
-    def get_height(self):
-        canvas_height = self.canvas.winfo_height()
-        if canvas_height == 1:
-            return CANVAS_HEIGHT
-        else:
-            return canvas_height
-
     def draw_text(self):
         self.canvas.create_text(
             10,
@@ -286,8 +273,8 @@ class CanvasManager:
         )
 
         self.canvas.create_text(
-            self.get_width() - 50,
-            self.get_height() - 20,
+            CANVAS_WIDTH - 50,
+            CANVAS_HEIGHT - 20,
             anchor="se",
             font=("tkMenuFont", 7),
             text="Xwmin: "
@@ -305,7 +292,7 @@ class CanvasManager:
         )
 
         self.canvas.create_text(
-            self.get_width() - 40,
+            CANVAS_WIDTH - 40,
             10,
             anchor="ne",
             fill="white",

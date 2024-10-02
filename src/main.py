@@ -29,8 +29,8 @@ def main():
     canvas = Canvas(
         main_frame,
         background="black",
-        height=CANVAS_HEIGHT,
-        width=CANVAS_WIDTH,
+        height=CANVAS_HEIGHT - CANVAS_BORDER,
+        width=CANVAS_WIDTH - CANVAS_BORDER,
         borderwidth=5,
         relief="sunken",
     )
