@@ -10,17 +10,17 @@ from Math.transformations import (
     scale,
     rotate_around_point,
     rotate_around_world,
-    normalized_coordinate_transform,
 )
 from Math.helpers import get_center_of_object
 from CanvasManager.world import World
+from CanvasManager.clipping import should_draw_point
 import numpy as np
 
 
 class CanvasManager:
     def __init__(self, canvas: Canvas):
         self.canvas = canvas
-        self.movement_speed = 50
+        self.movement_speed = 25
         self.canvas.bind("<Button-4>", self.handle_zoom_in)
         self.canvas.bind("<Button-5>", self.handle_zoom_out)
         self.canvas.bind_all("<KeyPress>", self.handle_key_press)
@@ -31,18 +31,18 @@ class CanvasManager:
 
         ## Representa o canvas em si
         self.viewport = Viewport(
-            VIEWPORT_OFFSET + CANVAS_BORDER,
-            VIEWPORT_OFFSET + CANVAS_BORDER,
-            CANVAS_WIDTH - VIEWPORT_OFFSET - CANVAS_BORDER,
-            CANVAS_HEIGHT - VIEWPORT_OFFSET - CANVAS_BORDER,
+            VIEWPORT_OFFSET,
+            VIEWPORT_OFFSET,
+            CANVAS_WIDTH - VIEWPORT_OFFSET,
+            CANVAS_HEIGHT - VIEWPORT_OFFSET,
         )
 
         # Representa um recorte do mundo
         self.window = Window(
-            VIEWPORT_OFFSET + CANVAS_BORDER,
-            VIEWPORT_OFFSET + CANVAS_BORDER,
-            CANVAS_WIDTH - VIEWPORT_OFFSET - CANVAS_BORDER,
-            CANVAS_HEIGHT - VIEWPORT_OFFSET - CANVAS_BORDER,
+            VIEWPORT_OFFSET,
+            VIEWPORT_OFFSET,
+            CANVAS_WIDTH - VIEWPORT_OFFSET,
+            CANVAS_HEIGHT - VIEWPORT_OFFSET,
         )
         self.world = World((1, 0), (0, 1))
         self.display_file = STARTING_DISPLAY_FILE
@@ -156,9 +156,8 @@ class CanvasManager:
             self.repaint()
 
     def handle_mouse_movement(self, event: Event):
-        [(xw, yw)] = normalized_coordinate_transform([(event.x, event.y)], self.window)
-        self.mouseXw = xw
-        self.mouseYw = yw
+        self.mouseXw = event.x
+        self.mouseYw = event.y
 
         self.repaint()
 
@@ -184,6 +183,7 @@ class CanvasManager:
 
         if event.keysym == "Down":
             self.window.center = (window_center) + (-movement_speed * window_view_up)
+
         if event.keysym == "Up":
             self.window.center = (window_center) + (movement_speed * window_view_up)
 
@@ -307,16 +307,17 @@ class CanvasManager:
     def draw_object(self, obj: ScreenObject):
         obj.normalize_coords(self.window)
         if obj.type == "point":
-            width = 0.01
-            if self.selected_object and self.selected_object.name == obj.name:
-                width = 0.02
+            if should_draw_point(obj):
+                width = 0.01
+                if self.selected_object and self.selected_object.name == obj.name:
+                    width = 0.02
 
-            [(xw, yw)] = obj.normalized_coords
-            (xvp1, yvp1) = self.viewport_transform_2d((xw - width, yw - width))
-            (xvp2, yvp2) = self.viewport_transform_2d((xw + width, yw + width))
+                [(xw, yw)] = obj.normalized_coords
+                (xvp1, yvp1) = self.viewport_transform_2d((xw - width, yw - width))
+                (xvp2, yvp2) = self.viewport_transform_2d((xw + width, yw + width))
 
-            # criar oval para representar um ponto
-            self.canvas.create_oval(xvp1, yvp1, xvp2, yvp2, fill=obj.color)
+                # criar oval para representar um ponto
+                self.canvas.create_oval(xvp1, yvp1, xvp2, yvp2, fill=obj.color)
         else:
             for index, _el in enumerate(obj.normalized_coords):
                 if index == 0:
@@ -340,8 +341,7 @@ class CanvasManager:
                     )
 
     def zoom(self, percentage: float = 0.1):
-        self.window.xMax = self.window.xMax * (1.0 + percentage)
-        self.window.yMax = self.window.yMax * (1.0 + percentage)
+        self.window.scale_window(percentage)
         self.repaint()
 
     def get_objects_list(self):

@@ -29,10 +29,10 @@ def main():
     canvas = Canvas(
         main_frame,
         background="black",
-        height=CANVAS_HEIGHT - CANVAS_BORDER,
-        width=CANVAS_WIDTH - CANVAS_BORDER,
-        borderwidth=5,
-        relief="sunken",
+        height=CANVAS_HEIGHT,
+        width=CANVAS_WIDTH,
+        borderwidth=0,
+        relief="flat",
     )
     canvas.grid(column=1, row=0, sticky=(N, E))
 

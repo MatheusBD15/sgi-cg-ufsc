@@ -4,10 +4,9 @@ import os
 
 def export_as_obj_file(filename: str, objects: list[ScreenObject]):
     with open(filename, "w") as f:
-        # Write all vertices first
         vertex_count = 1
-        vertex_map = {}  # To map object vertices to global vertex indices
-        colors = set()  # To keep track of all colors used
+        vertex_map = {}
+        colors = set()
         for obj in objects:
             for coord in obj.world_coords:
                 f.write(f"v {coord[0]:.1f} {coord[1]:.1f} 0.0\n")
@@ -15,11 +14,9 @@ def export_as_obj_file(filename: str, objects: list[ScreenObject]):
                 vertex_count += 1
             colors.add(obj.color)
 
-        # Write material library reference
         mtl_filename = os.path.splitext(filename)[0] + ".mtl"
         f.write(f"mtllib {os.path.basename(mtl_filename)}\n\n")
 
-        # Write objects and their geometries
         for obj in objects:
             f.write(f"# defining a {obj.color} {obj.type}\n")
             f.write(f"o {obj.name}\n")
@@ -33,9 +30,8 @@ def export_as_obj_file(filename: str, objects: list[ScreenObject]):
             elif obj.type == "wireframe":
                 f.write(f"f {' '.join(map(str, vertices))}\n")
 
-            f.write("\n")  # Add a blank line between objects for readability
+            f.write("\n")
 
-    # Generate the MTL file
     generate_mtl_file(mtl_filename, colors)
 
     print(f"{len(objects)} objectos exportados para {filename}")
