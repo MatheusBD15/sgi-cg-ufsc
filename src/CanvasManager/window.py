@@ -15,5 +15,4 @@ class Window:
 
     def set_rotation(self, angle: float):
         self.rotationAngle = angle
-
         self.view_up_vector = rotate_direction_vector(self.view_up_vector, angle)

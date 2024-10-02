@@ -34,7 +34,8 @@ def main():
         borderwidth=5,
         relief="sunken",
     )
-    canvas.grid(column=1, row=0)
+    canvas.grid(column=1, row=0, sticky=(N, E))
+
     canvas.focus()
 
     canvas_manager = CanvasManager(canvas=canvas)

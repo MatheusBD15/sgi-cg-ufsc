@@ -30,10 +30,20 @@ class CanvasManager:
         self.mouseYw = 0
 
         ## Representa o canvas em si
-        self.viewport = Viewport(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
+        self.viewport = Viewport(
+            VIEWPORT_OFFSET + CANVAS_BORDER,
+            VIEWPORT_OFFSET + CANVAS_BORDER,
+            CANVAS_WIDTH - VIEWPORT_OFFSET - CANVAS_BORDER,
+            CANVAS_HEIGHT - VIEWPORT_OFFSET - CANVAS_BORDER,
+        )
 
         # Representa um recorte do mundo
-        self.window = Window(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
+        self.window = Window(
+            VIEWPORT_OFFSET + CANVAS_BORDER,
+            VIEWPORT_OFFSET + CANVAS_BORDER,
+            CANVAS_WIDTH - VIEWPORT_OFFSET - CANVAS_BORDER,
+            CANVAS_HEIGHT - VIEWPORT_OFFSET - CANVAS_BORDER,
+        )
         self.world = World((1, 0), (0, 1))
         self.display_file = STARTING_DISPLAY_FILE
         self.objects_var = StringVar(value=self.get_all_object_names())
@@ -198,8 +208,46 @@ class CanvasManager:
 
     def repaint(self):
         self.canvas.delete("all")
+        self.draw_clip_box()
         self.draw_all_objects()
         self.draw_text()
+
+    def draw_clip_box(self):
+        height = self.get_height() - VIEWPORT_OFFSET
+        width = self.get_width() - VIEWPORT_OFFSET
+
+        self.canvas.create_line(
+            VIEWPORT_OFFSET,
+            VIEWPORT_OFFSET,
+            width,
+            VIEWPORT_OFFSET,
+            width=3,
+            fill="red",
+        )
+        self.canvas.create_line(
+            width,
+            VIEWPORT_OFFSET,
+            width,
+            height,
+            width=3,
+            fill="red",
+        )
+        self.canvas.create_line(
+            width,
+            height,
+            VIEWPORT_OFFSET,
+            height,
+            width=3,
+            fill="red",
+        )
+        self.canvas.create_line(
+            VIEWPORT_OFFSET,
+            height,
+            VIEWPORT_OFFSET,
+            VIEWPORT_OFFSET,
+            width=3,
+            fill="red",
+        )
 
     def rotate_window_clockwise(self):
         self.window.set_rotation(self.window.rotationAngle + 5)
@@ -232,6 +280,7 @@ class CanvasManager:
             10,
             10,
             text="Controle com scroll do mouse e setas do teclado",
+            font=("tkMenuFont", 7),
             fill="white",
             anchor="nw",
         )
@@ -240,6 +289,7 @@ class CanvasManager:
             self.get_width() - 50,
             self.get_height() - 20,
             anchor="se",
+            font=("tkMenuFont", 7),
             text="Xwmin: "
             + str(round(self.window.xMin, 2))
             + "\n"
@@ -259,6 +309,7 @@ class CanvasManager:
             10,
             anchor="ne",
             fill="white",
+            font=("tkMenuFont", 7),
             text="Mouse xw: "
             + str(round(self.mouseXw, 2))
             + "\n"

@@ -1,8 +1,9 @@
 from CanvasManager.screenObject import ScreenObject
 
-CANVAS_HEIGHT = 1000
-CANVAS_WIDTH = 1000
-
+CANVAS_HEIGHT = 800
+CANVAS_WIDTH = 800
+VIEWPORT_OFFSET = 40
+CANVAS_BORDER = 6
 
 # POINT, LINE OU WIREFRAME
 OBJECT_TYPES = ["point", "line", "wireframe"]
