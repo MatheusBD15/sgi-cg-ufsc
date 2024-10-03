@@ -251,16 +251,31 @@ class CanvasManager:
         )
 
     def rotate_window_clockwise(self):
-        self.window.set_rotation(self.window.rotationAngle + 5)
+        self.window.set_rotation(5)
         self.repaint()
 
     def rotate_window_counter_clock_wise(self):
-        self.window.set_rotation(self.window.rotationAngle - 5)
+        self.window.set_rotation(-5)
         self.repaint()
 
     def draw_all_objects(self):
+        self.draw_view_up()
+
         for obj in self.display_file:
             self.draw_object(obj)
+
+    def draw_view_up(self):
+        [x, y] = self.window.view_up_vector
+
+        (xvp1, yvp1) = self.viewport_transform_2d((x, y))
+        (xvp2, yvp2) = self.viewport_transform_2d((0, 0))
+
+        # criar oval para representar um ponto
+        self.canvas.create_line(
+            (xvp1, yvp1, xvp2, yvp2),
+            width=2,
+            fill="pink",
+        )
 
     def draw_text(self):
         self.canvas.create_text(

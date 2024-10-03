@@ -1,4 +1,4 @@
-from Math.transformations import rotate_direction_vector, scale
+from Math.transformations import rotate_direction_vector, scale, rotate_around_point
 import numpy as np
 
 
@@ -14,7 +14,7 @@ class Window:
         self.view_up_vector = np.array([0, 1])
 
     def set_rotation(self, angle: float):
-        self.rotationAngle = angle
+        self.rotationAngle += angle
         self.view_up_vector = rotate_direction_vector(self.view_up_vector, angle)
 
     def scale_window(self, percentage):
