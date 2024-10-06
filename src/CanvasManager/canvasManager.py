@@ -10,12 +10,12 @@ from Math.transformations import (
     scale,
     rotate_around_point,
     rotate_around_world,
+    normalized_coordinate_transform
 )
 from Math.helpers import get_center_of_object
 from CanvasManager.world import World
-from CanvasManager.clipping import should_draw_point
+from CanvasManager.clipping import cohen_sutherland_clip
 import numpy as np
-
 
 class CanvasManager:
     def __init__(self, canvas: Canvas):
@@ -28,22 +28,33 @@ class CanvasManager:
         self.canvas.bind_all("<Delete>", self.delete_selected_object)
         self.mouseXw = 0
         self.mouseYw = 0
+        self.clip_xmin = VIEWPORT_OFFSET
+        self.clip_ymin = VIEWPORT_OFFSET
+        self.clip_xmax = CANVAS_WIDTH - VIEWPORT_OFFSET
+        self.clip_ymax = CANVAS_HEIGHT - VIEWPORT_OFFSET
 
-        ## Representa o canvas em si
+        # Represents the entire canvas
         self.viewport = Viewport(
-            VIEWPORT_OFFSET,
-            VIEWPORT_OFFSET,
-            CANVAS_WIDTH - VIEWPORT_OFFSET,
-            CANVAS_HEIGHT - VIEWPORT_OFFSET,
+            self.clip_xmin,
+            self.clip_ymin,
+            self.clip_xmax,
+            self.clip_ymax,
+        )
+        # self.viewport = Viewport(
+        #     0,
+        #     0,
+        #     CANVAS_WIDTH,
+        #     CANVAS_HEIGHT,
+        # )
+
+        # Represents the clipping area (virtual canvas)
+        self.window = Window(
+            self.clip_xmin,
+            self.clip_ymin,
+            self.clip_xmax,
+            self.clip_ymax,
         )
 
-        # Representa um recorte do mundo
-        self.window = Window(
-            VIEWPORT_OFFSET,
-            VIEWPORT_OFFSET,
-            CANVAS_WIDTH - VIEWPORT_OFFSET,
-            CANVAS_HEIGHT - VIEWPORT_OFFSET,
-        )
         self.world = World((1, 0), (0, 1))
         self.display_file = STARTING_DISPLAY_FILE
         self.objects_var = StringVar(value=self.get_all_object_names())
@@ -52,6 +63,139 @@ class CanvasManager:
         self.objects_list = None
 
         self.repaint()
+
+    def draw_view_up(self):
+        # Draw view-up vector (always points "north")
+        center_x, center_y = self.viewport_transform_2d((0, 0))
+        top_x, top_y = self.viewport_transform_2d((0, 0.2))  # Arbitrary length
+
+        self.canvas.create_line(
+            center_x, center_y, top_x, top_y,
+            width=2,
+            fill="pink",
+            arrow=LAST
+        )
+
+    def handle_key_press(self, event: Event):
+        movement_speed = self.movement_speed
+
+        if event.keysym == "Right":
+            self.window.move(-movement_speed, 0)
+        elif event.keysym == "Left":
+            self.window.move(movement_speed, 0)
+        elif event.keysym == "Up":
+            self.window.move(0, -movement_speed)
+        elif event.keysym == "Down":
+            self.window.move(0, movement_speed)
+
+        self.repaint()
+
+    # def viewport_transform_2d(self, coords: tuple[float]):
+
+
+    def viewport_transform_2d(self, coords: tuple[float]):
+        (xw, yw) = coords
+        (xwMin, xwMax) = (self.window.xMin, self.window.xMax)
+        (xvpMin, xvpMax) = (self.viewport.xMin, self.viewport.xMax)
+        (ywMin, ywMax) = (self.window.yMin, self.window.yMax)
+        (yvpMin, yvpMax) = (self.viewport.yMin, self.viewport.yMax)
+
+        xvp = ((xw - xwMin) / (xwMax - xwMin)) * (xvpMax - xvpMin)
+        yvp = ((1 - (yw - ywMin)) / (ywMax - ywMin)) * (yvpMax - yvpMin)
+
+        return (xvp, yvp)
+
+    # def viewport_transform_2d(self, coords: tuple[float]):
+    #     (xw, yw) = coords
+    #     viewport = self.viewport
+    #
+    #     xvp = ((xw + 1) / 2) * (viewport.xMax - viewport.xMin) + viewport.xMin
+    #     yvp = ((1 - yw) / 2) * (viewport.yMax - viewport.yMin) + viewport.yMin
+    #     return (xvp, yvp)
+
+    def draw_clip_box(self):
+        self.canvas.create_rectangle(
+            self.clip_xmin,
+            self.clip_ymin,
+            self.clip_xmax,
+            self.clip_ymax,
+            outline="red",
+            width=3,
+        )
+
+    def draw_text(self):
+        self.canvas.create_text(
+            10,
+            10,
+            text="Controle com scroll do mouse e setas do teclado",
+            font=("tkMenuFont", 7),
+            fill="white",
+            anchor="nw",
+        )
+
+        self.canvas.create_text(
+            CANVAS_WIDTH - 50,
+            CANVAS_HEIGHT - 20,
+            anchor="se",
+            font=("tkMenuFont", 7),
+            text="Xwmin: "
+                 + str(round(self.window.xMin, 2))
+                 + "\n"
+                 + "Xwmax: "
+                 + str(round(self.window.xMax, 2))
+                 + "\n"
+                 + "Ywmin: "
+                 + str(round(self.window.yMin, 2))
+                 + "\n"
+                 + "Ywmax: "
+                 + str(round(self.window.yMax, 2)),
+            fill="white",
+            )
+
+        self.canvas.create_text(
+            CANVAS_WIDTH - 40,
+            10,
+            anchor="ne",
+            fill="white",
+            font=("tkMenuFont", 7),
+            text="Mouse xw: "
+                 + str(round(self.mouseXw, 2))
+                 + "\n"
+                 + "Mouse yw: "
+                 + str(round(self.mouseYw, 2)),
+            )
+
+    def draw_object(self, obj: ScreenObject):
+        obj.normalize_coords(self.window)
+        if obj.type == "point":
+            [(x, y)] = obj.normalized_coords
+            clipped_point = cohen_sutherland_clip(x, y, x, y)
+            if clipped_point:
+                width = 0.01
+                if self.selected_object and self.selected_object.name == obj.name:
+                    width = 0.02
+                (xvp1, yvp1) = self.viewport_transform_2d((x - width, y - width))
+                (xvp2, yvp2) = self.viewport_transform_2d((x + width, y + width))
+                self.canvas.create_oval(xvp1, yvp1, xvp2, yvp2, fill=obj.color)
+        else:
+            for index, _el in enumerate(obj.normalized_coords):
+                if index == 0:
+                    continue
+                start = obj.normalized_coords[index - 1]
+                end = obj.normalized_coords[index]
+                clipped_line = cohen_sutherland_clip(start[0], start[1], end[0], end[1])
+                if clipped_line:
+                    width = 2
+                    if self.selected_object and self.selected_object.name == obj.name:
+                        width = 10
+                    (x1, y1), (x2, y2) = clipped_line
+                    (xvp1, yvp1) = self.viewport_transform_2d((x1, y1))
+                    (xvp2, yvp2) = self.viewport_transform_2d((x2, y2))
+                    self.canvas.create_line(
+                        xvp1, yvp1, xvp2, yvp2,
+                        width=width,
+                        fill=obj.color,
+                    )
 
     def set_objects_list(self, listbox):
         self.objects_list = listbox
@@ -103,6 +247,30 @@ class CanvasManager:
                 self.selected_object.apply_transformation(translate, *args)
             self.repaint()
 
+    # def translate_selected_right(self):
+    #     if self.selected_object:
+    #         translation_distance = float(self.translation_entry.get() or 10)
+    #         self.selected_object.apply_transformation(translate, translation_distance, 0)
+    #         self.repaint()
+    #
+    # def translate_selected_left(self):
+    #     if self.selected_object:
+    #         translation_distance = float(self.translation_entry.get() or 10)
+    #         self.selected_object.apply_transformation(translate, -translation_distance, 0)
+    #         self.repaint()
+    #
+    # def translate_selected_up(self):
+    #     if self.selected_object:
+    #         translation_distance = float(self.translation_entry.get() or 10)
+    #         self.selected_object.apply_transformation(translate, 0, translation_distance)
+    #         self.repaint()
+    #
+    # def translate_selected_down(self):
+    #     if self.selected_object:
+    #         translation_distance = float(self.translation_entry.get() or 10)
+    #         self.selected_object.apply_transformation(translate, 0, -translation_distance)
+    #         self.repaint()
+
     def translate_selected_right(self):
         if self.selected_object:
             window_view_up = self.window.view_up_vector
@@ -147,7 +315,7 @@ class CanvasManager:
 
             translation_distance = float(self.translation_entry.get() or 10)
             translation_vector = (
-                -translation_distance * window_view_up
+                    -translation_distance * window_view_up
             )  # Downward translation
 
             self.selected_object.apply_transformation(
@@ -166,28 +334,6 @@ class CanvasManager:
 
     def handle_zoom_out(self, event: Event):
         self.zoom(0.1)
-
-    def handle_key_press(self, event: Event):
-        movement_speed = self.movement_speed
-
-        window_center = np.array(self.window.center)
-        window_view_up = self.window.view_up_vector
-
-        if event.keysym == "Right":
-            right_view_up = np.array([window_view_up[1], -window_view_up[0]])
-            self.window.center = (window_center) + (movement_speed * right_view_up)
-
-        if event.keysym == "Left":
-            left_view_up = np.array([-window_view_up[1], window_view_up[0]])
-            self.window.center = (window_center) + (movement_speed * left_view_up)
-
-        if event.keysym == "Down":
-            self.window.center = (window_center) + (-movement_speed * window_view_up)
-
-        if event.keysym == "Up":
-            self.window.center = (window_center) + (movement_speed * window_view_up)
-
-        self.repaint()
 
     def viewport_transform_2d(self, coords: tuple[float]):
         (xw, yw) = coords
@@ -211,44 +357,6 @@ class CanvasManager:
         self.draw_clip_box()
         self.draw_all_objects()
         self.draw_text()
-
-    def draw_clip_box(self):
-        height = CANVAS_HEIGHT - VIEWPORT_OFFSET / 2
-        width = CANVAS_WIDTH - VIEWPORT_OFFSET / 2
-        offset = VIEWPORT_OFFSET / 2
-
-        self.canvas.create_line(
-            offset,
-            offset,
-            width,
-            offset,
-            width=3,
-            fill="red",
-        )
-        self.canvas.create_line(
-            width,
-            offset,
-            width,
-            height,
-            width=3,
-            fill="red",
-        )
-        self.canvas.create_line(
-            width,
-            height,
-            offset,
-            height,
-            width=3,
-            fill="red",
-        )
-        self.canvas.create_line(
-            offset,
-            height,
-            offset,
-            offset,
-            width=3,
-            fill="red",
-        )
 
     def rotate_window_clockwise(self):
         self.window.set_rotation(5)
@@ -276,84 +384,6 @@ class CanvasManager:
             width=2,
             fill="pink",
         )
-
-    def draw_text(self):
-        self.canvas.create_text(
-            10,
-            10,
-            text="Controle com scroll do mouse e setas do teclado",
-            font=("tkMenuFont", 7),
-            fill="white",
-            anchor="nw",
-        )
-
-        self.canvas.create_text(
-            CANVAS_WIDTH - 50,
-            CANVAS_HEIGHT - 20,
-            anchor="se",
-            font=("tkMenuFont", 7),
-            text="Xwmin: "
-            + str(round(self.window.xMin, 2))
-            + "\n"
-            + "Xwmax: "
-            + str(round(self.window.xMax, 2))
-            + "\n"
-            + "Ywmin: "
-            + str(round(self.window.yMin, 2))
-            + "\n"
-            + "Ywmax: "
-            + str(round(self.window.yMax, 2)),
-            fill="white",
-        )
-
-        self.canvas.create_text(
-            CANVAS_WIDTH - 40,
-            10,
-            anchor="ne",
-            fill="white",
-            font=("tkMenuFont", 7),
-            text="Mouse xw: "
-            + str(round(self.mouseXw, 2))
-            + "\n"
-            + "Mouse yw: "
-            + str(round(self.mouseYw, 2)),
-        )
-
-    def draw_object(self, obj: ScreenObject):
-        obj.normalize_coords(self.window)
-        if obj.type == "point":
-            if should_draw_point(obj):
-                width = 0.01
-                if self.selected_object and self.selected_object.name == obj.name:
-                    width = 0.02
-
-                [(xw, yw)] = obj.normalized_coords
-                (xvp1, yvp1) = self.viewport_transform_2d((xw - width, yw - width))
-                (xvp2, yvp2) = self.viewport_transform_2d((xw + width, yw + width))
-
-                # criar oval para representar um ponto
-                self.canvas.create_oval(xvp1, yvp1, xvp2, yvp2, fill=obj.color)
-        else:
-            for index, _el in enumerate(obj.normalized_coords):
-                if index == 0:
-                    pass
-                else:
-                    (xvp1, yvp1) = self.viewport_transform_2d(
-                        obj.normalized_coords[index - 1]
-                    )
-                    (xvp2, yvp2) = self.viewport_transform_2d(
-                        obj.normalized_coords[index]
-                    )
-
-                    width = 2
-                    if self.selected_object and self.selected_object.name == obj.name:
-                        width = 10
-
-                    self.canvas.create_line(
-                        (xvp1, yvp1, xvp2, yvp2),
-                        width=width,
-                        fill=obj.color,
-                    )
 
     def zoom(self, percentage: float = 0.1):
         self.window.scale_window(percentage)
