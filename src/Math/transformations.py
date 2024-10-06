@@ -76,9 +76,15 @@ def apply_transformation(coords, matrix):
 
 def normalized_coordinate_transform(coords, window):
     # Translate to origin
-    translate_to_origin = np.array([[1, 0, -window.center[0] / 2],
-                                    [0, 1, -window.center[1] / 2],
+    translate_to_origin = np.array([[1, 0, -window.center[0]],
+                                    [0, 1, -window.center[1]],
                                     [0, 0, 1]])
+
+    # Rotate (this rotates the world, not the window)
+    angle_rad = np.radians(-window.world_rotation_angle)  # Note the negative sign
+    rotate = np.array([[np.cos(angle_rad), -np.sin(angle_rad), 0],
+                       [np.sin(angle_rad), np.cos(angle_rad), 0],
+                       [0, 0, 1]])
 
     # Scale to fit in [-1, 1] range
     scale_x = 2 / (window.xMax - window.xMin)
@@ -87,13 +93,7 @@ def normalized_coordinate_transform(coords, window):
                       [0, scale_y, 0],
                       [0, 0, 1]])
 
-    # Rotate (applied after scaling to maintain aspect ratio)
-    angle_rad = np.radians(window.rotationAngle)
-    rotate = np.array([[np.cos(angle_rad), -np.sin(angle_rad), 0],
-                       [np.sin(angle_rad), np.cos(angle_rad), 0],
-                       [0, 0, 1]])
-
     # Combine transformations
-    transform = np.dot(rotate, np.dot(scale, translate_to_origin))
+    transform = np.dot(scale, np.dot(rotate, translate_to_origin))
 
     return apply_transformation(coords, transform)
