@@ -1,6 +1,4 @@
-from Math.transformations import rotate_direction_vector, scale, rotate_around_point
 import numpy as np
-
 
 class Window:
     def __init__(self, xMin, yMin, xMax, yMax):
@@ -8,28 +6,37 @@ class Window:
         self.xMax = xMax
         self.yMin = yMin
         self.yMax = yMax
-        self.rotationAngle = 0
-
-        self.center = [(self.xMin + self.xMax) / 2, (self.yMax + self.yMin) / 2]
+        self.center = [(self.xMin + self.xMax) / 2, (self.yMin + self.yMax) / 2]
+        self.world_rotation_angle = 0  # This is the rotation of the world, not the window
         self.view_up_vector = np.array([0, 1])
 
-    def set_rotation(self, angle: float):
-        self.rotationAngle += angle
-        self.view_up_vector = rotate_direction_vector(self.view_up_vector, angle)
+    def set_world_rotation(self, angle: float):
+        self.world_rotation_angle += angle
+
+    def move(self, dx, dy):
+        self.xMin += dx
+        self.xMax += dx
+        self.yMin += dy
+        self.yMax += dy
+        self.center[0] = (self.xMin + self.xMax) / 2
+        self.center[1] = (self.yMin + self.yMax) / 2
 
     def scale_window(self, percentage):
         magnitude = percentage + 1.0
-        [xCenter, yCenter] = self.center
-        [(xMax, yMax), (xMin, yMin)] = scale(
-            [(self.xMax, self.yMax), (self.xMin, self.yMin)],
-            magnitude,
-            magnitude,
-            xCenter,
-            yCenter,
-        )
-        self.xMax = xMax
-        self.yMax = yMax
-        self.yMin = yMin
-        self.xMin = xMin
+        [wcx, wcy] = self.center
+        new_width = (self.xMax - self.xMin) * magnitude
+        new_height = (self.yMax - self.yMin) * magnitude
 
-        self.center = [(self.xMin + self.xMax) / 2, (self.yMax + self.yMin) / 2]
+        self.xMin = wcx - new_width / 2
+        self.xMax = wcx + new_width / 2
+        self.yMin = wcy - new_height / 2
+        self.yMax = wcy + new_height / 2
+        self.center = [(self.xMin + self.xMax) / 2, (self.yMin + self.yMax) / 2]
+
+    def move(self, dx, dy):
+        self.xMin += dx
+        self.xMax += dx
+        self.yMin += dy
+        self.yMax += dy
+        self.center[0] = (self.xMin + self.xMax) / 2
+        self.center[1] = (self.yMin + self.yMax) / 2

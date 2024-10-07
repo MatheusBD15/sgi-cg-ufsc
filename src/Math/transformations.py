@@ -74,22 +74,26 @@ def apply_transformation(coords, matrix):
     transformed_coords = np.dot(homogeneous_coords, matrix.T)
     return [tuple(coord[:2]) for coord in transformed_coords]
 
-
 def normalized_coordinate_transform(coords, window):
-    angle_rad = np.radians(window.rotationAngle)
+    # Translate to origin
+    translate_to_origin = np.array([[1, 0, -window.center[0]],
+                                    [0, 1, -window.center[1]],
+                                    [0, 0, 1]])
 
-    (wcx, wcy) = window.center
-    translate_to_center = np.array([[1, 0, -wcx], [0, 1, -wcy], [0, 0, 1]])
+    # Rotate (this rotates the world, not the window)
+    angle_rad = np.radians(-window.world_rotation_angle)  # Note the negative sign
+    rotate = np.array([[np.cos(angle_rad), -np.sin(angle_rad), 0],
+                       [np.sin(angle_rad), np.cos(angle_rad), 0],
+                       [0, 0, 1]])
 
-    rotate = np.array(
-        [
-            [np.cos(angle_rad), -np.sin(angle_rad), 0],
-            [np.sin(angle_rad), np.cos(angle_rad), 0],
-            [0, 0, 1],
-        ]
-    )
-    sx = 2 / window.xMax
-    sy = 2 / window.yMax
-    scaling_matrix = np.array([[sx, 0, 0], [0, sy, 0], [0, 0, 1]])
-    resulting_matrix = np.dot(scaling_matrix, np.dot(rotate, translate_to_center))
-    return apply_transformation(coords, resulting_matrix)
+    # Scale to fit in [-1, 1] range
+    scale_x = 2 / (window.xMax - window.xMin)
+    scale_y = 2 / (window.yMax - window.yMin)
+    scale = np.array([[scale_x, 0, 0],
+                      [0, scale_y, 0],
+                      [0, 0, 1]])
+
+    # Combine transformations
+    transform = np.dot(scale, np.dot(rotate, translate_to_origin))
+
+    return apply_transformation(coords, transform)
