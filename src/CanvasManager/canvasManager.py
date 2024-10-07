@@ -10,12 +10,13 @@ from Math.transformations import (
     scale,
     rotate_around_point,
     rotate_around_world,
-    normalized_coordinate_transform
+    normalized_coordinate_transform,
 )
 from Math.helpers import get_center_of_object
 from CanvasManager.world import World
 from CanvasManager.clipping import cohen_sutherland_clip
 import numpy as np
+
 
 class CanvasManager:
     def __init__(self, canvas: Canvas):
@@ -109,7 +110,7 @@ class CanvasManager:
             object_names = ", ".join([obj.name for obj in self.selected_objects])
             confirm = messagebox.askyesno(
                 "Confirmar deleção",
-                f"Tem certeza que deseja deletar os objetos selecionados: {object_names}?"
+                f"Tem certeza que deseja deletar os objetos selecionados: {object_names}?",
             )
             if confirm:
                 for obj in self.selected_objects:
@@ -147,7 +148,9 @@ class CanvasManager:
                     obj.apply_transformation(rotate_around_world, angle)
                 elif rotation_type == "object":
                     (xCenter, yCenter) = get_center_of_object(obj.world_coords)
-                    obj.apply_transformation(rotate_around_point, xCenter, yCenter, angle)
+                    obj.apply_transformation(
+                        rotate_around_point, xCenter, yCenter, angle
+                    )
                 elif rotation_type == "arbitrary_point":
                     [tx, ty] = list(eval(self.rotate_point_entry.get() or "0, 0"))
                     obj.apply_transformation(rotate_around_point, tx, ty, angle)
@@ -246,11 +249,11 @@ class CanvasManager:
             anchor="se",
             font=("tkMenuFont", 7),
             text=f"Xwmin: {round(self.window.xMin, 2)}\n"
-                 f"Xwmax: {round(self.window.xMax, 2)}\n"
-                 f"Ywmin: {round(self.window.yMin, 2)}\n"
-                 f"Ywmax: {round(self.window.yMax, 2)}",
+            f"Xwmax: {round(self.window.xMax, 2)}\n"
+            f"Ywmin: {round(self.window.yMin, 2)}\n"
+            f"Ywmax: {round(self.window.yMax, 2)}",
             fill="white",
-            )
+        )
 
         self.canvas.create_text(
             CANVAS_WIDTH - 40,
@@ -259,12 +262,10 @@ class CanvasManager:
             fill="white",
             font=("tkMenuFont", 7),
             text=f"Mouse xw: {round(self.mouseXw, 2)}\n"
-                 f"Mouse yw: {round(self.mouseYw, 2)}",
-            )
+            f"Mouse yw: {round(self.mouseYw, 2)}",
+        )
 
     def draw_all_objects(self):
-        self.draw_view_up()
-
         for obj in self.display_file:
             self.draw_object(obj)
 
@@ -307,7 +308,10 @@ class CanvasManager:
                     (xvp1, yvp1) = self.viewport_transform_2d((x1, y1))
                     (xvp2, yvp2) = self.viewport_transform_2d((x2, y2))
                     self.canvas.create_line(
-                        xvp1, yvp1, xvp2, yvp2,
+                        xvp1,
+                        yvp1,
+                        xvp2,
+                        yvp2,
                         width=width,
                         fill=obj.color,
                     )
